@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — GroupScan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F1A; --surface:#131A2B; --surface-2:#1B2438; --border:#262F47;
+    --text:#EDF1FA; --text-muted:#8D96B3;
+    --verified:#22D3A6; --verified-dim:rgba(34,211,166,.12);
+    --caution:#FFB238; --danger:#FF4D5E; --danger-dim:rgba(255,77,94,.12);
+    --violet:#7C6CFF; --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  h1,h2,.brand{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+
+  .wrap{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;}
+
+  .panel{
+    position:relative;padding:50px 5vw;display:flex;flex-direction:column;justify-content:space-between;
+    background:radial-gradient(circle at 30% 20%, rgba(124,108,255,.22), transparent 45%),
+      radial-gradient(circle at 80% 80%, rgba(34,211,166,.18), transparent 45%), #0E1424;
+    border-right:1px solid var(--border);overflow:hidden;
+  }
+  .brand{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:8px;position:relative;z-index:2;}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--verified);box-shadow:0 0 12px var(--verified);}
+  .panel-copy{position:relative;z-index:2;max-width:400px;}
+  .panel-copy h1{font-size:2.1rem;line-height:1.15;letter-spacing:-.02em;margin-bottom:14px;}
+  .panel-copy p{color:var(--text-muted);font-size:.95rem;}
+  .radar{position:absolute;right:-80px;bottom:-80px;width:420px;height:420px;z-index:1;}
+  .radar-ring{position:absolute;border:1px solid rgba(34,211,166,.25);border-radius:50%;inset:0;}
+  .radar-ring.r2{inset:60px;} .radar-ring.r3{inset:120px;}
+  .radar-sweep{position:absolute;inset:0;border-radius:50%;
+    background:conic-gradient(from 0deg, rgba(34,211,166,.5), transparent 40%);animation:spin 4s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .panel-foot{position:relative;z-index:2;display:flex;gap:26px;color:var(--text-muted);font-size:.8rem;}
+  .panel-foot b{color:var(--verified);font-family:'JetBrains Mono';display:block;font-size:1rem;}
+
+  .formside{display:flex;align-items:center;justify-content:center;padding:40px 6vw;}
+  .card{width:100%;max-width:400px;}
+  .card h2{font-size:1.6rem;letter-spacing:-.02em;margin-bottom:6px;}
+  .card .sub{color:var(--text-muted);font-size:.88rem;margin-bottom:30px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:.78rem;color:var(--text-muted);margin-bottom:7px;}
+  .field input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:11px;
+    padding:12px 14px;color:var(--text);font-size:.92rem;outline:none;transition:.2s;font-family:'Inter';}
+  .field input:focus{border-color:var(--verified);box-shadow:0 0 0 3px var(--verified-dim);}
+  .pw-wrap{position:relative;}
+  .pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:.8rem;color:var(--text-muted);}
+  .row-between{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;margin:4px 0 22px;}
+  .row-between label{display:flex;align-items:center;gap:6px;color:var(--text-muted);}
+  .row-between a{color:var(--violet);}
+  .err-box{
+    display:none;background:var(--danger-dim);border:1px solid rgba(255,77,94,.35);color:var(--danger);
+    padding:10px 14px;border-radius:10px;font-size:.82rem;margin-bottom:16px;
+  }
+  .btn-primary{width:100%;padding:13px;border-radius:11px;background:var(--verified);color:#04150F;border:none;
+    font-weight:700;font-size:.95rem;cursor:pointer;transition:.2s;}
+  .btn-primary:hover{box-shadow:0 0 24px rgba(34,211,166,.4);transform:translateY(-1px);}
+  .divider{display:flex;align-items:center;gap:12px;margin:26px 0;color:var(--text-muted);font-size:.78rem;}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+  .admin-hint{
+    background:var(--surface);border:1px dashed var(--border);border-radius:11px;padding:12px 14px;
+    font-size:.76rem;color:var(--text-muted);margin-bottom:22px;
+  }
+  .admin-hint b{color:var(--violet);}
+  .switch-line{text-align:center;margin-top:22px;font-size:.86rem;color:var(--text-muted);}
+  .switch-line a{color:var(--verified);font-weight:600;}
+
+  @media(max-width:860px){
+    .wrap{grid-template-columns:1fr;}
+    .panel{min-height:220px;}
+    .radar{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="panel">
+    <a href="index.html" class="brand"><span class="dot"></span>GroupScan</a>
+    <div class="panel-copy">
+      <h1>Welcome back.</h1>
+      <p>Log in to track your submitted groups, reviews, reputation score, and saved favourites.</p>
+    </div>
+    <div class="radar">
+      <div class="radar-ring"></div><div class="radar-ring r2"></div><div class="radar-ring r3"></div>
+      <div class="radar-sweep"></div>
+    </div>
+    <div class="panel-foot">
+      <div><b>18.2K</b>Groups</div>
+      <div><b>92%</b>Verified</div>
+      <div><b>640+</b>Scams blocked</div>
+    </div>
+  </div>
+
+  <div class="formside">
+    <div class="card">
+      <h2>Log in to your account</h2>
+      <div class="sub">Enter your details to continue</div>
+
+      <div class="err-box" id="loginErr">Incorrect email or password.</div>
+
+    
+
+      <div class="field">
+        <label>Email address</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="loginPass" placeholder="••••••••">
+          <span class="pw-toggle" onclick="togglePw()">Show</span>
+        </div>
+      </div>
+
+      <div class="row-between">
+        <label><input type="checkbox" id="rememberMe"> Remember me</label>
+        <a href="#" onclick="forgotPassword();return false;">Forgot password?</a>
+      </div>
+
+      <button class="btn-primary" onclick="doLogin()">Log in</button>
+
+      <div class="divider">or</div>
+      <button class="btn-primary" style="background:var(--surface-2);color:var(--text);border:1px solid var(--border);" onclick="alert('Your OTP 🙂')">Continue with Google</button>
+
+      <div class="switch-line">New to GroupScan? <a href="register.html">Create an account</a></div>
+      <a href="index.html">Back</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePw(){
+  const inp = document.getElementById('loginPass');
+  const isPw = inp.type === 'password';
+  inp.type = isPw ? 'text' : 'password';
+  document.querySelector('.pw-toggle').textContent = isPw ? 'Hide' : 'Show';
+}
+function getUsers(){ return JSON.parse(localStorage.getItem('wcd_users') || '[]'); }
+
+const ADMIN = { email:'ar@gmail.com', pass:'1208' };
+
+function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errBox = document.getElementById('loginErr');
+  errBox.style.display = 'none';
+
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirectPage = urlParams.get('redirect') || 'Profile.html'; 
+
+  if(email.toLowerCase()===ADMIN.email && pass===ADMIN.pass){
+    localStorage.setItem('wcd_session', JSON.stringify({ email:ADMIN.email, role:'admin' }));
+    window.location.href = redirectPage === 'Profile.html' ? 'admin dashboard.html' : redirectPage;
+    return;
+  }
+
+  const user = getUsers().find(u=>u.email.toLowerCase()===email.toLowerCase() && u.pass===pass);
+  if(user){
+    localStorage.setItem('wcd_session', JSON.stringify({ email:user.email, role:'user' }));
+    window.location.href = redirectPage;
+  } else {
+    errBox.textContent = 'Incorrect email or password.';
+    errBox.style.display = 'block';
+  }
+}
+function forgotPassword(){
+  const email = prompt('Enter your registered email to receive a reset link (demo):');
+  if(email) alert(` Your password reset link would be sent to ${email}.`);
+}
+document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>

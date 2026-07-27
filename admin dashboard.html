@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — GroupScan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* === ORIGINAL COLORS MODIFIED FOR PREMIUM GLASS EFFECT === */
+  :root{
+    --bg:#05080F; 
+    --surface:rgba(19, 26, 43, 0.65); 
+    --surface-2:rgba(27, 36, 56, 0.75); 
+    --border:rgba(38, 47, 71, 0.6);
+    --text:#EDF1FA; --text-muted:#8D96B3;
+    --verified:#22D3A6; --verified-dim:rgba(34,211,166,.12);
+    --caution:#FFB238; --caution-dim:rgba(255,178,56,.12);
+    --danger:#FF4D5E; --danger-dim:rgba(255,77,94,.12);
+    --violet:#7C6CFF; --violet-dim:rgba(124,108,255,.12); --radius:14px;
+    --r1:#FF4D5E; --r1-dim:rgba(255,77,94,.13);
+    --r2:#FF8145; --r2-dim:rgba(255,129,69,.13);
+    --r3:#FFB238; --r3-dim:rgba(255,178,56,.13);
+    --r4:#A8D93C; --r4-dim:rgba(168,217,60,.13);
+    --r5:#22D3A6; --r5-dim:rgba(34,211,166,.13);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  /* ✨ 7. Thin Glass Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(141, 150, 179, 0.3); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--verified); }
+
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+  button, a, select, input, .nav-item, .fchip, .curation-item { font-family:'Inter'; cursor:pointer !important; }
+
+  /* ✨ 1. Animated Aurora Background */
+  .aurora-bg { position: fixed; inset: 0; z-index: -2; background: var(--bg); overflow: hidden; pointer-events: none; }
+  .aurora-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.3; animation: moveAurora 15s infinite alternate ease-in-out; }
+  .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(34,211,166,0.2); }
+  .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: rgba(124,108,255,0.15); animation-delay: -5s; }
+  .blob-3 { top: 40%; left: 30%; width: 40vw; height: 40vw; background: rgba(0,184,255,0.1); animation-delay: -10s; }
+  @keyframes moveAurora { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(100px, 50px) scale(1.1); } }
+
+  /* ✨ 2. Floating Particles */
+  #particles { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+  .particle { position: absolute; border-radius: 50%; filter: blur(1px); animation: floatParticle linear infinite; }
+  @keyframes floatParticle { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 20% { opacity: 0.8; transform: translateY(80vh) scale(1); } 80% { opacity: 0.5; } 100% { transform: translateY(-10vh) scale(0); opacity: 0; } }
+
+  /* ✨ 18 & 25. Custom Cursor & Mouse Glow */
+  #custom-cursor { position: fixed; width: 24px; height: 24px; border: 1.5px solid var(--verified); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s; }
+  #custom-cursor.expand { width: 45px; height: 45px; background: rgba(34, 211, 166, 0.1); }
+  #mouse-glow { position: fixed; width: 400px; height: 400px; background: radial-gradient(circle, rgba(34,211,166,0.1) 0%, transparent 60%); border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); z-index: -1; }
+
+  .app{display:grid;grid-template-columns:250px 1fr;min-height:100vh;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{background:rgba(14, 20, 36, 0.4); backdrop-filter:blur(20px); border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh; z-index:100;}
+  
+  /* ✨ 5. Live Status Dot Added to Brand */
+  .brand{font-size:1.15rem;font-weight:700;display:flex;align-items:center;gap:8px;padding:0 8px 26px;}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--verified);box-shadow:0 0 12px var(--verified);animation:pulseGlow 2.4s ease-in-out infinite;}
+  .live-badge { font-size: 0.65rem; background: var(--verified-dim); color: var(--verified); padding: 2px 6px; border-radius: 100px; display:flex; align-items:center; gap:4px; font-family:'Inter'; text-transform:uppercase; letter-spacing:1px; animation: liveBlink 2s infinite; margin-left:auto;}
+  .live-badge .ldot { width:6px; height:6px; background:currentColor; border-radius:50%; box-shadow:0 0 8px currentColor; }
+  @keyframes liveBlink { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+  @keyframes pulseGlow{0%,100%{box-shadow:0 0 8px var(--verified);}50%{box-shadow:0 0 18px var(--verified);}}
+  
+  /* ✨ 22. Neon Border on Active Tab */
+  .nav-item{position:relative; overflow:hidden; display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;color:var(--text-muted);font-size:.88rem;transition:.2s;margin-bottom:3px; border-left:3px solid transparent; cursor: pointer;}
+  .nav-item:hover{background:var(--surface);color:var(--text);}
+  .nav-item.active{background:var(--verified-dim);color:var(--verified);font-weight:600; border-left:3px solid var(--verified); box-shadow: -15px 0 20px -15px var(--verified) inset;}
+  
+  /* ✨ 17. Gradient Icons */
+  .nav-item .ic{width:18px;text-align:center; background: linear-gradient(135deg, #22D3A6, #7C6CFF); -webkit-background-clip: text; color: transparent; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); transition: transform 0.3s;}
+  .nav-item:hover .ic { transform: scale(1.1); }
+  
+  .nav-item .badge-count{margin-left:auto;background:var(--danger);color:#fff;font-size:.66rem;padding:1px 6px;border-radius:10px;font-weight:700;}
+  .nav-sep{height:1px;background:var(--border);margin:14px 8px;}
+  .sidebar-foot{margin-top:auto;padding:12px 8px;}
+  
+  /* ✨ 16. Admin Profile Dropdown */
+  .dropdown-wrap { position: relative; }
+  .admin-chip{display:flex;align-items:center;gap:10px;padding:10px;background:var(--surface);border-radius:11px;border:1px solid var(--border);margin-bottom:10px; transition:0.2s; cursor: pointer;}
+  .admin-chip:hover { border-color: var(--violet); box-shadow: 0 0 15px var(--violet-dim); }
+  .admin-chip .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg, var(--violet), #b3a8ff);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem; box-shadow: 0 0 10px var(--violet-dim);}
+  .admin-chip .info{font-size:.78rem;}
+  .admin-chip .info b{display:block;color:var(--text);font-size:.82rem;}
+  .profile-menu { position: absolute; bottom: 100%; left: 0; width: 100%; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 6px; margin-bottom: 8px; opacity: 0; pointer-events: none; transform: translateY(10px); transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1); backdrop-filter: blur(10px); z-index: 200; }
+  .profile-menu.show { opacity: 1; pointer-events: auto; transform: translateY(0); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .pm-item { padding: 10px; font-size: 0.8rem; border-radius: 8px; color: var(--text-muted); display:flex; align-items:center; gap:8px; transition: 0.2s; cursor: pointer;}
+  .pm-item:hover { background: var(--surface); color: var(--text); }
+  
+  .logout-btn{width:100%;padding:10px;border-radius:10px;background:var(--danger-dim);color:var(--danger);border:1px solid rgba(255,77,94,.3);font-size:.85rem;font-weight:600;transition:0.2s; cursor: pointer;}
+  .logout-btn:hover{background:var(--danger);color:#fff; box-shadow:0 0 15px rgba(255,77,94,0.4);}
+
+  /* ---------- Main ---------- */
+  main{padding:30px 40px 60px;max-width:1200px; position:relative; z-index:10;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
+  .topbar h1{font-size:1.5rem;letter-spacing:-.02em;}
+  .topbar p{color:var(--text-muted);font-size:.85rem;margin-top:4px;}
+  
+  /* ✨ 15. Dashboard Clock */
+  #dash-clock { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted); background: var(--surface); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); box-shadow: inset 0 0 10px rgba(255,255,255,0.02);}
+  #dash-clock span { color: var(--text); font-weight: 600; display: block; font-size:0.95rem;}
+
+  /* ✨ 14. Page Transition */
+  .tab{display:none;}
+  .tab.active{display:block;animation:slideFade .35s cubic-bezier(0.16, 1, 0.3, 1) forwards;}
+  @keyframes slideFade{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+  
+  /* ✨ 9. Skeleton Loading Animation (CSS only based fade) */
+  .tab.active .panel, .tab.active .stat-card { animation: dataFadeIn 0.5s ease backwards; }
+  @keyframes dataFadeIn { 0% { opacity: 0; filter: blur(5px); } 100% { opacity: 1; filter: blur(0); } }
+
+  /* ✨ 23. Welcome Banner */
+  .welcome-banner { background: linear-gradient(135deg, rgba(34,211,166,0.15), rgba(124,108,255,0.15)); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; position:relative; overflow:hidden;}
+  .welcome-banner::after { content: ''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%); animation: rotateGlow 10s linear infinite; pointer-events:none;}
+  @keyframes rotateGlow { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+  .wb-content h2 { font-size: 1.2rem; margin-bottom: 4px; display:flex; align-items:center; gap:8px;}
+  .wb-content p { font-size: 0.85rem; color: var(--text-muted); }
+
+  /* ---------- Stat cards (✨ 3. Premium Hover) ---------- */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:32px;}
+  .stat-card{background:var(--surface);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
+  .stat-card:hover { transform: translateY(-6px) scale(1.03) rotate(1deg); box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(255,255,255,0.03); z-index: 2;}
+  .stat-card .ic{font-size:1.3rem;margin-bottom:10px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));}
+  .stat-card .num{font-size:1.7rem;font-weight:700;font-family:'JetBrains Mono';}
+  .stat-card .lbl{font-size:.78rem;color:var(--text-muted);margin-top:2px;}
+  .stat-card.accent-verified:hover{border-color:rgba(34,211,166,.8); box-shadow: 0 15px 30px rgba(34,211,166,0.15);}
+  .stat-card.accent-caution:hover{border-color:rgba(255,178,56,.8); box-shadow: 0 15px 30px rgba(255,178,56,0.15);}
+  .stat-card.accent-danger:hover{border-color:rgba(255,77,94,.8); box-shadow: 0 15px 30px rgba(255,77,94,0.15);}
+
+  /* ✨ 6. Gradient Border Animation */
+  .panel{background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:24px; position:relative;}
+  .panel::before { content: ""; position: absolute; inset: -1px; z-index: -1; background: linear-gradient(60deg, rgba(34,211,166,0.3), rgba(124,108,255,0.3), rgba(255,77,94,0.3), rgba(34,211,166,0.3)); border-radius: calc(var(--radius) + 1px); background-size: 300% 300%; animation: gradientBorder 6s ease infinite; opacity: 0; transition: opacity 0.3s; }
+  .panel:hover::before { opacity: 1; }
+  @keyframes gradientBorder { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+  .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .panel-head h2{font-size:1.05rem;font-weight:700;}
+  
+  /* ✨ 11. Better Empty States (CSS styled over your original markup) */
+  .empty-state{text-align:center;padding:50px 20px;color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:8px;}
+  .empty-state .emo{font-size:3rem;display:block;margin-bottom:10px; animation: floatEmpty 3s ease-in-out infinite; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));}
+  @keyframes floatEmpty { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
+
+  /* ---------- Buttons (✨ 8. Ripple setup) ---------- */
+  .btn{position:relative; overflow:hidden; padding:9px 16px;border-radius:10px;font-size:.83rem;font-weight:600;border:1px solid var(--border); transition:.2s;background:var(--surface-2);color:var(--text); cursor: pointer;}
+  .btn:hover{border-color:var(--verified); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2);}
+  .btn-solid{background:var(--verified);color:#04150F;border:none;}
+  .btn-solid:hover{box-shadow:0 0 20px rgba(34,211,166,.4); border-color:transparent;}
+  .btn-danger{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(255,77,94,.3);}
+  .btn-danger:hover{background:var(--danger);color:#fff; box-shadow:0 0 20px rgba(255,77,94,.4);}
+  .btn-ghost-sm{padding:6px 11px;font-size:.76rem;}
+  
+  .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: rippleAnim 0.6s linear; background: rgba(255,255,255,0.3); pointer-events: none; }
+  .btn-solid .ripple { background: rgba(0,0,0,0.2); }
+  @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+  /* ---------- Category grid (✨ 24. Bounce) ---------- */
+  .cat-manage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+  .cat-manage-card{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px; display:flex;align-items:center;gap:10px; transition:0.2s;}
+  .cat-manage-card:hover { transform: translateY(-3px); border-color:var(--violet); box-shadow: 0 5px 15px var(--violet-dim); }
+  .cat-manage-card .emo{font-size:1.3rem; display:inline-block; transition:0.3s;}
+  .cat-manage-card:hover .emo{ animation: bounceRotate 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes bounceRotate { 0%{transform:scale(1) rotate(0);} 50%{transform:scale(1.2) rotate(15deg);} 100%{transform:scale(1) rotate(0);} }
+  .cat-manage-card .name{font-size:.85rem;font-weight:600;}
+  .cat-manage-card .cnt{font-size:.72rem;color:var(--text-muted);}
+  .cat-manage-card .acts{margin-left:auto;display:flex;gap:6px;}
+  .icon-btn{position:relative; overflow:hidden; width:26px;height:26px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:.75rem; transition:0.2s; cursor: pointer;}
+  .icon-btn:hover{color:var(--text);border-color:var(--verified); background:var(--surface);}
+
+  /* ---------- Home Curation ---------- */
+  .curation-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;}
+  .curation-col{background:var(--surface-2);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:var(--radius); padding:16px;display:flex;flex-direction:column;min-height:200px; transition:0.2s;}
+  .curation-col:hover { border-color:rgba(255,255,255,0.1); box-shadow:0 8px 24px rgba(0,0,0,0.3);}
+  .curation-col-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;}
+  .curation-col-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.92rem;}
+  .curation-col-count{font-size:.7rem;color:var(--text-muted);background:var(--surface);border:1px solid var(--border); padding:2px 9px;border-radius:100px;white-space:nowrap;}
+  .curation-list{display:flex;flex-direction:column;gap:8px;min-height:44px;margin-bottom:12px;flex:1;}
+  .curation-item{position:relative; overflow:hidden; display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border); border-radius:10px;padding:8px 9px;transition:.15s;}
+  .curation-item:hover{border-color:var(--verified); transform:scale(1.02); box-shadow:0 4px 12px rgba(0,0,0,0.2);}
+  .curation-item.dragging{opacity:.35; cursor:grabbing !important;}
+  .curation-drag{color:var(--text-muted);font-size:.8rem;line-height:1;}
+  .curation-item-name{font-size:.8rem;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .curation-remove{position:relative; width:22px;height:22px;flex:none;border-radius:6px;border:none;background:transparent; color:var(--text-muted);font-size:.72rem; transition:0.2s; cursor: pointer;}
+  .curation-remove:hover{color:var(--danger); background:var(--danger-dim); transform:rotate(90deg);}
+  .curation-empty{text-align:center;padding:18px 10px;color:var(--text-muted);font-size:.76rem; border:1.5px dashed var(--border);border-radius:10px;}
+  .curation-add-row{display:flex;gap:6px;}
+  .curation-add-row select{flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);color:var(--text); border-radius:8px;padding:7px 8px;font-size:.76rem;outline:none; cursor: pointer;}
+  .curation-add-row select:disabled{opacity:.5;}
+
+  .backup-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+  /* ---------- Table (✨ 13. Row Hover) ---------- */
+  table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  th{text-align:left;color:var(--text-muted);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em; padding:10px 12px;border-bottom:1px solid var(--border);}
+  td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle; transition:0.2s;}
+  tr { transition: background 0.2s ease, transform 0.2s; position: relative; }
+  tr:last-child td{border-bottom:none;}
+  tr:hover { background: rgba(34, 211, 166, 0.04); }
+  tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--verified); }
+  .row-name{font-weight:600; font-size:0.9rem;}
+  .row-sub{font-size:.74rem;color:var(--text-muted); margin-top:2px;}
+  
+  /* ✨ 21. Verified Badge Glow */
+  .badge{font-size:.68rem;font-weight:700;padding:4px 9px;border-radius:100px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+  .badge.verified{background:var(--verified-dim);color:var(--verified); animation: verifiedPulse 2.5s infinite;}
+  @keyframes verifiedPulse { 0%,100%{box-shadow:0 0 0 rgba(34,211,166,0);} 50%{box-shadow:0 0 10px rgba(34,211,166,0.3);} }
+  .badge.caution{background:var(--caution-dim);color:var(--caution);}
+  .badge.scam{background:var(--danger-dim);color:var(--danger);}
+  .badge.pending{background:var(--violet-dim);color:var(--violet);}
+  .badge.rejected{background:var(--surface-2);color:var(--text-muted);}
+  .badge .bdot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  
+  /* ✨ 20. Rating Animation */
+  .rating-chip{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;padding:4px 9px; border-radius:8px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap; transition:0.3s;}
+  .rating-chip:hover { text-shadow: 0 0 8px currentColor; box-shadow: 0 0 12px currentColor; transform:scale(1.05);}
+  .rating-chip.r1{color:var(--r1);background:var(--r1-dim);}
+  .rating-chip.r2{color:var(--r2);background:var(--r2-dim);}
+  .rating-chip.r3{color:var(--r3);background:var(--r3-dim);}
+  .rating-chip.r4{color:var(--r4);background:var(--r4-dim);}
+  .rating-chip.r5{color:var(--r5);background:var(--r5-dim);}
+  .rating-chip .rc-reviews{opacity:.72;font-weight:500;}
+  .act-group{display:flex;gap:6px;flex-wrap:wrap;}
+
+  select.status-select{background:var(--surface-2);border:1px solid var(--border);color:var(--text); padding:6px 8px;border-radius:8px;font-size:.78rem;outline:none; cursor: pointer;}
+  select.status-select:focus { border-color:var(--verified); }
+
+  .filter-chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .fchip{position:relative; overflow:hidden; padding:6px 12px;border:1px solid var(--border);border-radius:100px;font-size:.76rem;color:var(--text-muted); background:var(--surface-2); transition:0.2s; cursor: pointer;}
+  .fchip:hover { border-color:var(--verified); color:var(--text); }
+  .fchip.active{background:var(--verified);color:#04150F;border-color:var(--verified);font-weight:600; box-shadow:0 4px 10px var(--verified-dim);}
+
+  /* ✨ 10. Glass Search Box */
+  .search-wrap{position:relative;max-width:280px;margin-bottom:16px;}
+  .search-wrap .sic{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:.82rem;opacity:.55;pointer-events:none; transition:0.3s;}
+  .search-input{width:100%;background:rgba(27,36,56,0.4); backdrop-filter:blur(8px); border:1px solid var(--border);border-radius:10px; padding:9px 12px 9px 32px;color:var(--text);font-size:.83rem;outline:none;font-family:'Inter'; transition:all 0.3s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+  .search-input:focus{border-color:var(--verified); box-shadow:0 0 15px rgba(34,211,166,0.2), inset 0 0 8px rgba(34,211,166,0.1); background:rgba(27,36,56,0.7);}
+  .search-input:focus + .sic { color:var(--verified); opacity:1; filter:drop-shadow(0 0 5px var(--verified)); transform:translateY(-50%) scale(1.1);}
+
+  /* ✨ 19. Glass Modal Animation */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(5,7,14,.6);backdrop-filter:blur(8px); z-index:200;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.active{display:flex;}
+  .modal{background:var(--surface-2); border:1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02); border-radius:var(--radius);padding:26px; width:100%;max-width:480px;max-height:88vh;overflow-y:auto; animation:zoomBlur 0.4s cubic-bezier(0.16, 1, 0.3, 1);}
+  @keyframes zoomBlur { 0%{transform:scale(0.9); opacity:0; filter:blur(10px);} 100%{transform:scale(1); opacity:1; filter:blur(0);} }
+  .modal h3{font-size:1.1rem;margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:.76rem;color:var(--text-muted);margin-bottom:6px;}
+  .field input, .field select, .field textarea{ width:100%;background:rgba(0,0,0,0.2); border:1px solid var(--border);border-radius:9px; padding:10px 12px;color:var(--text);font-size:.86rem;outline:none;font-family:'Inter'; transition:0.3s;}
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--verified); box-shadow:0 0 10px rgba(34,211,166,0.2);}
+  .field textarea{resize:vertical;min-height:64px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .modal-acts{display:flex;gap:10px;margin-top:20px;}
+  .modal-acts .btn{flex:1;}
+
+  /* ✨ 12. Success Animation Toast Override */
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--verified);color:#04150F;padding:12px 18px; border-radius:11px;font-size:.85rem;font-weight:600;z-index:300;opacity:0;transform:translateY(10px) scale(0.9); transition:0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);pointer-events:none; box-shadow: 0 10px 30px rgba(34,211,166,0.4);}
+  .toast.show{opacity:1;transform:translateY(0) scale(1);}
+  .toast::before { content:'✔ '; display:inline-block; margin-right:4px; animation:tickBounce 0.5s 0.2s both; }
+  @keyframes tickBounce { 0%{transform:scale(0);} 50%{transform:scale(1.3);} 100%{transform:scale(1);} }
+
+
+  /* ================= PREMIUM RESPONSIVE CSS (MEDIA QUERIES) ================= */
+  
+  /* Base Responsive Enablers */
+  .mobile-menu-btn { display: none; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px; cursor: pointer; transition: 0.2s; align-items: center; justify-content: center; }
+  .mobile-menu-btn:hover { background: var(--surface); border-color: var(--verified); color: var(--verified); }
+  
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(5,8,15,0.6); backdrop-filter: blur(5px); z-index: 95; opacity: 0; transition: opacity 0.3s ease; }
+  .sidebar-overlay.active { display: block; opacity: 1; }
+  
+  .topbar-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  
+  /* Table Responsive Enhancements */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; border-radius: 8px; }
+  .table-wrap th, .table-wrap td { white-space: nowrap; }
+  .table-wrap td .row-sub { white-space: normal; min-width: 180px; line-height: 1.4; }
+
+  /* Laptops and Large Tablets */
+  @media (max-width: 1200px) {
+    main { padding: 30px; }
+  }
+  
+  @media (max-width: 1024px) {
+    .stat-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    .row3 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Tablets and Small Laptops */
+  @media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    main { padding: 20px 16px 80px; width: 100vw; overflow-x: hidden; }
+    
+    /* Mobile Menu & Topbar */
+    .mobile-menu-btn { display: flex; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .topbar-left { flex-wrap: nowrap; width: 100%; align-items: flex-start; }
+    .topbar h1 { font-size: 1.25rem; line-height: 1.2; margin-bottom: 4px; }
+    #dash-clock { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; }
+    
+    /* Sidebar Drawer */
+    .sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100vh; z-index: 100; transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 10px 0 30px rgba(0,0,0,0.6); background: rgba(14, 20, 36, 0.98); overflow-y: auto; display: block; }
+    .sidebar.open { left: 0; }
+    .sidebar-foot { display: block; margin-top: auto; padding-top: 40px; }
+    
+    /* Reflowing Layouts */
+    .search-wrap { max-width: 100%; }
+    .filter-chips { justify-content: flex-start; }
+    .welcome-banner { flex-direction: column; align-items: flex-start; gap: 12px; }
+    
+    .row2, .row3 { grid-template-columns: 1fr; }
+    .curation-grid { grid-template-columns: 1fr; }
+    .cat-manage-grid { grid-template-columns: 1fr 1fr; }
+    
+    /* Edge-to-Edge Tables on Mobile */
+    .panel { padding: 16px; }
+    .table-wrap { margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; width: calc(100% + 32px); }
+    
+    /* Button Adjustments */
+    .tab > div:not(.panel):not(.curation-grid) > .btn { width: 100%; padding: 12px; text-align: center; justify-content: center; display: flex; align-items: center; }
+    .backup-row { flex-direction: column; align-items: stretch; }
+    .backup-row .btn { width: 100%; text-align: center; justify-content: center; display: flex; }
+  }
+
+  /* Large & Normal Mobile */
+  @media (max-width: 600px) {
+    .stat-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 14px 12px; }
+    .stat-card .num { font-size: 1.4rem; }
+    .stat-card .lbl { font-size: 0.75rem; }
+    
+    .cat-manage-grid { grid-template-columns: 1fr; }
+    
+    /* Modal Bottom Sheet Style for Mobile */
+    .modal { padding: 20px 16px; width: 100%; max-width: none; border-radius: 16px 16px 0 0; margin-top: auto; max-height: 90vh; animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important; }
+    .modal-overlay { align-items: flex-end; padding: 0; }
+    .modal-acts { flex-direction: column-reverse; gap: 12px; }
+    .modal-acts .btn { width: 100%; padding: 12px; }
+    @keyframes slideUpModal { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    
+    .curation-col { padding: 14px; }
+    .curation-add-row { flex-direction: column; }
+    .curation-add-row .btn { width: 100%; }
+    
+    .act-group { flex-wrap: nowrap; gap: 8px; }
+    .toast { left: 16px; right: 16px; bottom: 16px; width: auto; text-align: center; }
+  }
+  
+  /* Small Mobile */
+  @media (max-width: 380px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    #dash-clock { flex-direction: column; align-items: flex-start; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ✨ Animated Assets (HTML overlay) -->
+<div class="aurora-bg">
+  <div class="aurora-blob blob-1"></div>
+  <div class="aurora-blob blob-2"></div>
+  <div class="aurora-blob blob-3"></div>
+</div>
+<div id="particles"></div>
+<div id="mouse-glow"></div>
+<div id="custom-cursor"></div>
+
+<!-- Sidebar Overlay for Mobile Drawer -->
+<div class="sidebar-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="dot"></span>GroupScan <div class="live-badge"><div class="ldot"></div>Live</div></div>
+    <div class="nav-item active" data-tab="overview" onclick="switchTab('overview')"><span class="ic">📊</span>Overview</div>
+    <div class="nav-item" data-tab="pending" onclick="switchTab('pending')"><span class="ic">⏳</span>Pending Queue<span class="badge-count" id="navPendingCount" style="display:none;"></span></div>
+    <div class="nav-item" data-tab="groups" onclick="switchTab('groups')"><span class="ic">🗂</span>All Groups</div>
+    <div class="nav-item" data-tab="curation" onclick="switchTab('curation')"><span class="ic">🎯</span>Home Curation</div>
+    <div class="nav-item" data-tab="categories" onclick="switchTab('categories')"><span class="ic">🏷</span>Categories</div>
+    <div class="nav-item" data-tab="users" onclick="switchTab('users')"><span class="ic">👥</span>Users</div>
+    <div class="nav-item" data-tab="reports" onclick="switchTab('reports')"><span class="ic">🚩</span>Reports<span class="badge-count" id="navReportsCount" style="display:none;"></span></div>
+    <div class="nav-sep"></div>
+    <div class="nav-item" onclick="window.open('index.html','_blank')"><span class="ic">🌐</span>View Site</div>
+    <div class="sidebar-foot">
+      <div class="dropdown-wrap" id="adminDropdown">
+        <div class="admin-chip"><div class="av">A</div><div class="info"><b>Admin</b>ar@gmail.com</div></div>
+        <div class="profile-menu" id="profMenu">
+          <div class="pm-item">👤 My Profile</div>
+          <div class="pm-item">⚙ Settings</div>
+          <div class="pm-item">🌙 Dark Mode</div>
+          <div class="pm-item pm-danger" onclick="logout()">🚪 Logout</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <div>
+          <h1 id="pageTitle">Dashboard Overview</h1>
+          <p id="pageSub">Live snapshot of your directory — real data only.</p>
+        </div>
+      </div>
+      <div id="dash-clock">
+        <span id="c-time">--:-- --</span> <div id="c-date">-- --- ----</div>
+      </div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="tab active" id="tab-overview">
+      <div class="welcome-banner">
+        <div class="wb-content">
+          <h2>👋 Welcome Admin Anandh 😎 </h2>
+          <p>Manage Groups Efficiently. Everything looks healthy today.</p>
+        </div>
+      </div>
+      <div class="stat-grid" id="statGrid"></div>
+      <div class="panel">
+        <div class="panel-head"><h2>Recent Activity</h2></div>
+        <div id="activityFeed"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Backup &amp; Restore</h2></div>
+        <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:14px;">Everything here lives only in this browser. Export a backup after big changes, or restore one if you switch machines.</p>
+        <div class="backup-row">
+          <button class="btn btn-solid" onclick="exportData()">⬇ Export Backup (.json)</button>
+          <button class="btn" onclick="document.getElementById('importFile').click()">⬆ Import Backup</button>
+          <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+        </div>
+      </div>
+    </div>
+
+    <!-- PENDING -->
+    <div class="tab" id="tab-pending">
+      <div style="margin-bottom:20px;"><button class="btn btn-solid" onclick="openGroupModal()">+ Add Group Directly</button></div>
+      <div class="panel">
+        <div class="table-wrap"><table id="pendingTable"><thead><tr>
+          <th>Group</th><th>Category</th><th>Location</th><th>Submitted by</th><th>Date</th><th>Actions</th>
+        </tr></thead><tbody id="pendingBody"></tbody></table></div>
+        <div id="pendingEmpty"></div>
+      </div>
+    </div>
+
+    <!-- ALL GROUPS -->
+    <div class="tab" id="tab-groups">
+      <div style="margin-bottom:20px;"><button class="btn btn-solid" onclick="openGroupModal()">+ Add Group</button></div>
+      <div class="panel">
+        <div class="search-wrap"><input class="search-input" id="groupSearchInput" placeholder="Search by name, city, country..." oninput="renderGroups()"><span class="sic">🔍</span></div>
+        <div class="filter-chips" id="groupFilterChips" style="margin-bottom:16px;"></div>
+        <div class="table-wrap"><table id="groupsTable"><thead><tr>
+          <th>Group</th><th>Category</th><th>Location</th><th>Rating</th><th>Members</th><th>Status</th><th>Actions</th>
+        </tr></thead><tbody id="groupsBody"></tbody></table></div>
+        <div id="groupsEmpty"></div>
+      </div>
+    </div>
+
+    <!-- HOME CURATION -->
+    <div class="tab" id="tab-curation">
+      <div class="curation-grid" id="curationGrid"></div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="tab" id="tab-categories">
+      <div style="margin-bottom:20px;"><button class="btn btn-solid" onclick="openCatModal()">+ Add Category</button></div>
+      <div class="panel"><div class="cat-manage-grid" id="catManageGrid"></div></div>
+    </div>
+
+    <!-- USERS -->
+    <div class="tab" id="tab-users">
+      <div class="panel">
+        <div class="search-wrap"><input class="search-input" id="userSearchInput" placeholder="Search by name or email..." oninput="renderUsers()"><span class="sic">🔍</span></div>
+        <div class="table-wrap"><table id="usersTable"><thead><tr>
+          <th>Name</th><th>Email</th><th>Mobile</th><th>Joined</th><th>Groups Submitted</th><th>Status</th><th>Actions</th>
+        </tr></thead><tbody id="usersBody"></tbody></table></div>
+        <div id="usersEmpty"></div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="tab" id="tab-reports">
+      <div class="panel">
+        <div class="table-wrap"><table id="reportsTable"><thead><tr>
+          <th>Group</th><th>Reason</th><th>Reported by</th><th>Date</th><th>Actions</th>
+        </tr></thead><tbody id="reportsBody"></tbody></table></div>
+        <div id="reportsEmpty"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Group Add/Edit Modal -->
+<div class="modal-overlay" id="groupModalOverlay">
+  <div class="modal">
+    <h3 id="groupModalTitle">Add Group</h3>
+    <input type="hidden" id="gmId">
+    <div class="row2">
+      <div class="field"><label>Group Emoji / Icon</label><input id="gmEmo" placeholder="💻" maxlength="4"></div>
+      <div class="field"><label>Group Name</label><input id="gmName" placeholder="e.g. Chennai Fresher Jobs Hub"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Category</label><select id="gmCat"></select></div>
+      <div class="field"><label>Status</label>
+        <select id="gmStatus">
+          <option value="verified">Verified</option>
+          <option value="pending">Pending</option>
+          <option value="caution">Caution</option>
+          <option value="scam">Scam Risk</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Description</label><textarea id="gmDesc" placeholder="Short description of the group..."></textarea></div>
+    <div class="field"><label>Real WhatsApp / Telegram Invite Link</label><input id="gmLink" placeholder="https://chat.whatsapp.com/..."></div>
+    <div class="row2">
+      <div class="field"><label>Country</label><input id="gmCountry" placeholder="e.g. India"></div>
+      <div class="field"><label>City</label><input id="gmCity" placeholder="e.g. Chennai"></div>
+    </div>
+    <div class="row3">
+      <div class="field"><label>Members (approx.)</label><input id="gmMembers" type="number" min="0" placeholder="e.g. 850"></div>
+      <div class="field"><label>Rating (0–5)</label><input id="gmRating" type="number" min="0" max="5" step="0.1" placeholder="e.g. 4.5"></div>
+      <div class="field"><label>Reviews count</label><input id="gmReviews" type="number" min="0" placeholder="e.g. 32"></div>
+    </div>
+    <div class="modal-acts">
+      <button class="btn" onclick="closeGroupModal()">Cancel</button>
+      <button class="btn btn-solid" onclick="saveGroup()">Save Group</button>
+    </div>
+  </div>
+</div>
+
+<!-- Category Add/Edit Modal -->
+<div class="modal-overlay" id="catModalOverlay">
+  <div class="modal">
+    <h3 id="catModalTitle">Add Category</h3>
+    <input type="hidden" id="cmId">
+    <div class="row2">
+      <div class="field"><label>Emoji Icon</label><input id="cmEmo" placeholder="🏷" maxlength="4"></div>
+      <div class="field"><label>Category Name</label><input id="cmName" placeholder="e.g. Real Estate"></div>
+    </div>
+    <div class="modal-acts">
+      <button class="btn" onclick="closeCatModal()">Cancel</button>
+      <button class="btn btn-solid" onclick="saveCategory()">Save Category</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= SESSION GUARD ================= */
+const session = JSON.parse(localStorage.getItem('wcd_session') || 'null');
+if(!session || session.role !== 'admin'){
+  // window.location.href = 'login.html';
+}
+
+/* ================= DEFAULT CATEGORY TAXONOMY (structural, not demo content) ================= */
+const DEFAULT_CATEGORIES = [
+  {id:1,emo:"📱",name:"Social Media"},{id:2,emo:"🎮",name:"Gaming"},{id:3,emo:"💻",name:"Technology"},
+  {id:4,emo:"📚",name:"Education"},{id:5,emo:"💼",name:"Jobs"},{id:6,emo:"❤️",name:"Friendship"},
+  {id:7,emo:"🛍",name:"Deals & Promotions"},{id:8,emo:"🎬",name:"Entertainment"},{id:9,emo:"🎵",name:"Music"},
+  {id:10,emo:"✈",name:"Travel"},{id:11,emo:"🍔",name:"Food"},{id:12,emo:"🏢",name:"Business"},
+  {id:13,emo:"🎯",name:"Startups"},{id:14,emo:"💰",name:"Finance"},{id:15,emo:"🏥",name:"Health"},
+  {id:16,emo:"🤖",name:"AI"}
+];
+
+function getCategories(){
+  if(!localStorage.getItem('wcd_categories')) localStorage.setItem('wcd_categories', JSON.stringify(DEFAULT_CATEGORIES));
+  return JSON.parse(localStorage.getItem('wcd_categories'));
+}
+function saveCategories(c){ localStorage.setItem('wcd_categories', JSON.stringify(c)); }
+function getGroups(){
+  if(!localStorage.getItem('wcd_groups')) localStorage.setItem('wcd_groups', JSON.stringify([]));
+  return JSON.parse(localStorage.getItem('wcd_groups'));
+}
+function saveGroups(g){ localStorage.setItem('wcd_groups', JSON.stringify(g)); }
+function getUsers(){ return JSON.parse(localStorage.getItem('wcd_users') || '[]'); }
+function saveUsers(u){ localStorage.setItem('wcd_users', JSON.stringify(u)); }
+function getReports(){ return JSON.parse(localStorage.getItem('wcd_reports') || '[]'); }
+function saveReports(r){ localStorage.setItem('wcd_reports', JSON.stringify(r)); }
+
+function catEmo(catName){ const c = getCategories().find(c=>c.name===catName); return c ? c.emo : '🏷'; }
+function formatMembers(n){
+  n = Number(n)||0;
+  if(n>=1000) return (n/1000).toFixed(1).replace('.0','')+'K';
+  return String(n);
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function logout(){ localStorage.removeItem('wcd_session'); window.location.href = 'login.html'; }
+
+/* ================= RATING COLOR BANDS (0-1 / 1-2 / 2-3 / 3-4 / 4-5) ================= */
+function ratingBand(rating){
+  const r = Number(rating)||0;
+  if(r < 1) return 1;
+  if(r < 2) return 2;
+  if(r < 3) return 3;
+  if(r < 4) return 4;
+  return 5;
+}
+function ratingChip(rating, reviews){
+  const band = ratingBand(rating);
+  const rv = (reviews===null || reviews===undefined) ? '' : ` <span class="rc-reviews">(${reviews})</span>`;
+  return `<span class="rating-chip r${band}">★ ${(Number(rating)||0).toFixed(1)}${rv}</span>`;
+}
+
+/* ================= SEARCH HELPER ================= */
+function matchesSearch(text, term){
+  return String(text||'').toLowerCase().includes(term);
+}
+
+/* ================= TAB SWITCHING ================= */
+// Enhanced to update Title & Subtitle without breaking logic
+const tabTitles = {
+  overview: {t: 'Dashboard Overview', s: 'Live snapshot of your directory — real data only.'},
+  pending: {t: 'Pending Queue', s: 'Review and approve group submissions before they go live.'},
+  groups: {t: 'All Groups', s: 'Manage every group in the directory.'},
+  curation: {t: 'Home Page Curation', s: 'Pick exactly which groups appear under each Sort option on Home & Categories, and drag to set the order.'},
+  categories: {t: 'Categories', s: 'These power the filters on the Home & Categories pages.'},
+  users: {t: 'Users', s: 'Everyone registered on GroupScan.'},
+  reports: {t: 'Scam Reports', s: 'Reports users file against groups appear here for action.'}
+};
+
+function switchTab(name){
+  document.querySelectorAll('.nav-item[data-tab]').forEach(n=>n.classList.toggle('active', n.dataset.tab===name));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  
+  if(tabTitles[name]) {
+    document.getElementById('pageTitle').innerText = tabTitles[name].t;
+    document.getElementById('pageSub').innerText = tabTitles[name].s;
+  }
+  
+  // Close sidebar on mobile after navigating
+  if(window.innerWidth <= 860) {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sbOverlay');
+    if(sidebar) sidebar.classList.remove('open');
+    if(overlay) overlay.classList.remove('active');
+  }
+  
+  renderAll();
+}
+
+/* ================= OVERVIEW ================= */
+function renderOverview(){
+  const groups = getGroups(), users = getUsers(), reports = getReports();
+  const pending = groups.filter(g=>g.status==='pending').length;
+  const verified = groups.filter(g=>g.status==='verified').length;
+  const scam = groups.filter(g=>g.status==='scam').length;
+
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat-card"><div class="ic">🗂</div><div class="num mono">${groups.length}</div><div class="lbl">Total Groups</div></div>
+    <div class="stat-card accent-caution"><div class="ic">⏳</div><div class="num mono">${pending}</div><div class="lbl">Pending Review</div></div>
+    <div class="stat-card accent-verified"><div class="ic">✅</div><div class="num mono">${verified}</div><div class="lbl">Verified Groups</div></div>
+    <div class="stat-card accent-danger"><div class="ic">🚩</div><div class="num mono">${scam}</div><div class="lbl">Scam Flagged</div></div>
+    <div class="stat-card"><div class="ic">👥</div><div class="num mono">${users.length}</div><div class="lbl">Registered Users</div></div>
+    <div class="stat-card"><div class="ic">🏷</div><div class="num mono">${getCategories().length}</div><div class="lbl">Categories</div></div>
+  `;
+
+  const activity = [];
+  groups.slice().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5).forEach(g=>{
+    activity.push(`<div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:.85rem;">
+      <b>${g.name}</b> was added as <span class="badge ${g.status}"><span class="bdot"></span>${g.status}</span>
+      <div class="row-sub">${g.createdAt}</div></div>`);
+  });
+  document.getElementById('activityFeed').innerHTML = activity.length ? activity.join('') :
+    `<div class="empty-state"><span class="emo">🌱</span>No activity yet — add your first group to get started.</div>`;
+
+  const navPending = document.getElementById('navPendingCount');
+  navPending.style.display = pending>0 ? 'inline-block' : 'none';
+  navPending.textContent = pending;
+  const navReports = document.getElementById('navReportsCount');
+  navReports.style.display = reports.filter(r=>!r.resolved).length>0 ? 'inline-block' : 'none';
+  navReports.textContent = reports.filter(r=>!r.resolved).length;
+}
+
+/* ================= PENDING QUEUE ================= */
+function renderPending(){
+  const groups = getGroups().filter(g=>g.status==='pending');
+  const body = document.getElementById('pendingBody');
+  const empty = document.getElementById('pendingEmpty');
+  if(!groups.length){
+    body.innerHTML = '';
+    empty.innerHTML = `<div class="empty-state"><span class="emo">📭</span>No pending submissions right now.</div>`;
+    return;
+  }
+  empty.innerHTML = '';
+  body.innerHTML = groups.map(g=>`
+    <tr>
+      <td><div class="row-name">${g.emo||catEmo(g.cat)} ${g.name}</div><div class="row-sub">${(g.desc||'').slice(0,50)}${(g.desc||'').length>50?'...':''}</div></td>
+      <td>${g.cat}</td>
+      <td>${g.city ? g.city+', ' : ''}${g.country}</td>
+      <td>${g.submittedBy || 'Admin'}</td>
+      <td class="row-sub">${g.createdAt}</td>
+      <td><div class="act-group">
+        <button class="btn btn-solid btn-ghost-sm" onclick="setGroupStatus(${g.id},'verified')">Approve</button>
+        <button class="btn btn-ghost-sm" onclick="editGroup(${g.id})">Edit</button>
+        <button class="btn btn-danger btn-ghost-sm" onclick="setGroupStatus(${g.id},'rejected')">Reject</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+/* ================= ALL GROUPS ================= */
+let groupFilter = 'all';
+function renderGroupFilters(){
+  const groups = getGroups();
+  const counts = { all:groups.length, verified:0, pending:0, caution:0, scam:0, rejected:0 };
+  groups.forEach(g=> counts[g.status] = (counts[g.status]||0)+1 );
+  const labels = [['all','All'],['verified','✅ Verified'],['pending','⏳ Pending'],['caution','🟡 Caution'],['scam','🔴 Scam'],['rejected','⛔ Rejected']];
+  document.getElementById('groupFilterChips').innerHTML = labels.map(([k,l])=>
+    `<div class="fchip ${groupFilter===k?'active':''}" onclick="setGroupFilter('${k}')">${l} (${counts[k]||0})</div>`).join('');
+}
+function setGroupFilter(f){ groupFilter = f; renderGroups(); }
+function renderGroups(){
+  renderGroupFilters();
+  let groups = getGroups();
+  if(groupFilter!=='all') groups = groups.filter(g=>g.status===groupFilter);
+  const searchEl = document.getElementById('groupSearchInput');
+  const term = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  if(term){
+    groups = groups.filter(g=> matchesSearch(g.name,term) || matchesSearch(g.city,term) || matchesSearch(g.country,term) || matchesSearch(g.cat,term));
+  }
+  const body = document.getElementById('groupsBody');
+  const empty = document.getElementById('groupsEmpty');
+  if(!groups.length){
+    body.innerHTML='';
+    empty.innerHTML = `<div class="empty-state"><span class="emo">🗂</span>No groups match${term ? ' your search.' : ' this filter yet.'}</div>`;
+    return;
+  }
+  empty.innerHTML = '';
+  body.innerHTML = groups.map(g=>`
+    <tr>
+      <td><div class="row-name">${g.emo||catEmo(g.cat)} ${g.name}</div><div class="row-sub">${(g.desc||'').slice(0,45)}${(g.desc||'').length>45?'...':''}</div></td>
+      <td>${g.cat}</td>
+      <td>${g.city ? g.city+', ' : ''}${g.country}</td>
+      <td>${ratingChip(g.rating, g.reviews||0)}</td>
+      <td class="mono">${formatMembers(g.membersNum)}</td>
+      <td>
+        <select class="status-select" onchange="setGroupStatus(${g.id}, this.value)">
+          ${['verified','pending','caution','scam','rejected'].map(s=>`<option value="${s}" ${g.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td><div class="act-group">
+        <button class="btn btn-ghost-sm" onclick="editGroup(${g.id})">Edit</button>
+        <button class="btn btn-danger btn-ghost-sm" onclick="deleteGroup(${g.id})">Delete</button>
+      </div></td>
+    </tr>`).join('');
+}
+function setGroupStatus(id, status){
+  const groups = getGroups();
+  const g = groups.find(x=>x.id===id);
+  if(!g) return;
+  g.status = status;
+  if(status==='verified') g.verifiedAt = new Date().toISOString().slice(0,10);
+  saveGroups(groups);
+  showToast(`${g.name} marked as ${status}`);
+  renderAll();
+}
+function deleteGroup(id){
+  if(!confirm('Delete this group permanently?')) return;
+  saveGroups(getGroups().filter(g=>g.id!==id));
+  showToast('Group deleted');
+  renderAll();
+}
+
+/* ================= GROUP MODAL ================= */
+function populateCatSelect(){
+  document.getElementById('gmCat').innerHTML = getCategories().map(c=>`<option value="${c.name}">${c.emo} ${c.name}</option>`).join('');
+}
+function openGroupModal(){
+  populateCatSelect();
+  document.getElementById('groupModalTitle').textContent = 'Add Group';
+  document.getElementById('gmId').value = '';
+  ['gmEmo','gmName','gmDesc','gmLink','gmCountry','gmCity','gmMembers','gmRating','gmReviews'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('gmStatus').value = 'verified';
+  document.getElementById('groupModalOverlay').classList.add('active');
+}
+function editGroup(id){
+  const g = getGroups().find(x=>x.id===id);
+  if(!g) return;
+  populateCatSelect();
+  document.getElementById('groupModalTitle').textContent = 'Edit Group';
+  document.getElementById('gmId').value = g.id;
+  document.getElementById('gmEmo').value = g.emo || '';
+  document.getElementById('gmName').value = g.name;
+  document.getElementById('gmCat').value = g.cat;
+  document.getElementById('gmStatus').value = g.status;
+  document.getElementById('gmDesc').value = g.desc || '';
+  document.getElementById('gmLink').value = g.inviteLink || '';
+  document.getElementById('gmCountry').value = g.country || '';
+  document.getElementById('gmCity').value = g.city || '';
+  document.getElementById('gmMembers').value = g.membersNum || 0;
+  document.getElementById('gmRating').value = g.rating || 0;
+  document.getElementById('gmReviews').value = g.reviews || 0;
+  document.getElementById('groupModalOverlay').classList.add('active');
+}
+function closeGroupModal(){ document.getElementById('groupModalOverlay').classList.remove('active'); }
+function saveGroup(){
+  const id = document.getElementById('gmId').value;
+  const emo = document.getElementById('gmEmo').value.trim() || '🔰';
+  const name = document.getElementById('gmName').value.trim();
+  const cat = document.getElementById('gmCat').value;
+  const status = document.getElementById('gmStatus').value;
+  const desc = document.getElementById('gmDesc').value.trim();
+  const inviteLink = document.getElementById('gmLink').value.trim();
+  const country = document.getElementById('gmCountry').value.trim();
+  const city = document.getElementById('gmCity').value.trim();
+  const membersNum = Math.max(0, Number(document.getElementById('gmMembers').value) || 0);
+  const rating = Math.min(5, Math.max(0, Number(document.getElementById('gmRating').value) || 0));
+  const reviews = Math.max(0, Number(document.getElementById('gmReviews').value) || 0);
+
+  if(!name || !cat || !country){ alert('Group name, category and country are required.'); return; }
+  if(!inviteLink){ if(!confirm('No invite link added — users won\'t be able to join this group from Home. Save anyway?')) return; }
+
+  let groups = getGroups();
+  if(id){
+    const g = groups.find(x=>x.id===Number(id));
+    Object.assign(g, {emo,name,cat,status,desc,inviteLink,country,city,membersNum,rating,reviews});
+    if(status==='verified' && !g.verifiedAt) g.verifiedAt = new Date().toISOString().slice(0,10);
+    showToast('Group updated');
+  } else {
+    groups.push({
+      id: Date.now(), emo, name, cat, status, desc, inviteLink, country, city, membersNum, rating, reviews,
+      submittedBy:'Admin',
+      createdAt: new Date().toISOString().slice(0,10),
+      verifiedAt: status==='verified' ? new Date().toISOString().slice(0,10) : null
+    });
+    showToast('Group added');
+  }
+  saveGroups(groups);
+  closeGroupModal();
+  renderAll();
+}
+
+/* ================= CATEGORIES ================= */
+function renderCategoriesTab(){
+  const groups = getGroups();
+  const cats = getCategories();
+  document.getElementById('catManageGrid').innerHTML = cats.map(c=>{
+    const cnt = groups.filter(g=>g.cat===c.name).length;
+    return `<div class="cat-manage-card">
+      <span class="emo">${c.emo}</span>
+      <div><div class="name">${c.name}</div><div class="cnt">${cnt} groups</div></div>
+      <div class="acts">
+        <button class="icon-btn" onclick="editCategory(${c.id})">✎</button>
+        <button class="icon-btn" onclick="deleteCategory(${c.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openCatModal(){
+  document.getElementById('catModalTitle').textContent = 'Add Category';
+  document.getElementById('cmId').value = '';
+  document.getElementById('cmEmo').value = '';
+  document.getElementById('cmName').value = '';
+  document.getElementById('catModalOverlay').classList.add('active');
+}
+function editCategory(id){
+  const c = getCategories().find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById('catModalTitle').textContent = 'Edit Category';
+  document.getElementById('cmId').value = c.id;
+  document.getElementById('cmEmo').value = c.emo;
+  document.getElementById('cmName').value = c.name;
+  document.getElementById('catModalOverlay').classList.add('active');
+}
+function closeCatModal(){ document.getElementById('catModalOverlay').classList.remove('active'); }
+function saveCategory(){
+  const id = document.getElementById('cmId').value;
+  const emo = document.getElementById('cmEmo').value.trim() || '🏷';
+  const name = document.getElementById('cmName').value.trim();
+  if(!name){ alert('Category name is required.'); return; }
+  let cats = getCategories();
+  if(id){
+    const c = cats.find(x=>x.id===Number(id));
+    const oldName = c.name;
+    Object.assign(c, {emo, name});
+    if(oldName!==name){
+      const groups = getGroups().map(g=> g.cat===oldName ? {...g, cat:name} : g);
+      saveGroups(groups);
+    }
+    showToast('Category updated');
+  } else {
+    cats.push({id:Date.now(), emo, name});
+    showToast('Category added');
+  }
+  saveCategories(cats);
+  closeCatModal();
+  renderAll();
+}
+function deleteCategory(id){
+  const cats = getCategories();
+  const c = cats.find(x=>x.id===id);
+  const inUse = getGroups().some(g=>g.cat===c.name);
+  if(inUse && !confirm(`${c.name} is used by existing groups. Delete anyway? Those groups will keep the old category name.`)) return;
+  saveCategories(cats.filter(x=>x.id!==id));
+  showToast('Category deleted');
+  renderAll();
+}
+
+/* ================= USERS ================= */
+function renderUsers(){
+  let users = getUsers();
+  const groups = getGroups();
+  const searchEl = document.getElementById('userSearchInput');
+  const term = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  if(term){
+    users = users.filter(u=> matchesSearch(u.name,term) || matchesSearch(u.email,term));
+  }
+  const body = document.getElementById('usersBody');
+  const empty = document.getElementById('usersEmpty');
+  if(!users.length){
+    body.innerHTML='';
+    empty.innerHTML = `<div class="empty-state"><span class="emo">👤</span>No users ${term ? 'match your search.' : 'registered yet.'}</div>`;
+    return;
+  }
+  empty.innerHTML='';
+  body.innerHTML = users.map(u=>{
+    const submitted = groups.filter(g=>g.submittedBy===u.email).length;
+    return `<tr>
+      <td class="row-name">${u.name}</td>
+      <td>${u.email}</td>
+      <td>${u.mobile||'—'}</td>
+      <td class="row-sub">${u.joined}</td>
+      <td class="mono">${submitted}</td>
+      <td><span class="badge ${u.banned?'scam':'verified'}"><span class="bdot"></span>${u.banned?'Banned':'Active'}</span></td>
+      <td><button class="btn btn-ghost-sm ${u.banned?'':'btn-danger'}" onclick="toggleBan('${u.email}')">${u.banned?'Unban':'Ban'}</button></td>
+    </tr>`;
+  }).join('');
+}
+function toggleBan(email){
+  const users = getUsers();
+  const u = users.find(x=>x.email===email);
+  u.banned = !u.banned;
+  saveUsers(users);
+  showToast(u.banned ? `${u.name} banned` : `${u.name} unbanned`);
+  renderAll();
+}
+
+/* ================= REPORTS ================= */
+function renderReports(){
+  const reports = getReports();
+  const body = document.getElementById('reportsBody');
+  const empty = document.getElementById('reportsEmpty');
+  if(!reports.length){
+    body.innerHTML='';
+    empty.innerHTML = `<div class="empty-state"><span class="emo">🚩</span>No scam reports filed yet. This queue fills up once the Submit Group / Report flow goes live.</div>`;
+    return;
+  }
+  empty.innerHTML='';
+  body.innerHTML = reports.map(r=>`
+    <tr>
+      <td class="row-name">${r.groupName}</td>
+      <td>${r.reason}</td>
+      <td>${r.reportedBy}</td>
+      <td class="row-sub">${r.date}</td>
+      <td><div class="act-group">
+        <button class="btn btn-danger btn-ghost-sm" onclick="resolveReport(${r.id},true)">Flag as Scam</button>
+        <button class="btn btn-ghost-sm" onclick="resolveReport(${r.id},false)">Dismiss</button>
+      </div></td>
+    </tr>`).join('');
+}
+function resolveReport(id, flagScam){
+  const reports = getReports();
+  const r = reports.find(x=>x.id===id);
+  r.resolved = true;
+  saveReports(reports);
+  if(flagScam){
+    const groups = getGroups();
+    const g = groups.find(x=>x.name===r.groupName);
+    if(g){ g.status='scam'; saveGroups(groups); }
+  }
+  showToast('Report resolved');
+  renderAll();
+}
+
+/* ================= HOME CURATION ================= */
+/* Mirrors the 4 "Sort" options on the public Home/Categories pages. A group placed
+   in a list here is pinned, in this exact order, whenever a visitor sorts by that
+   option. Groups not placed in any list simply fall back to normal sorting there. */
+const CURATION_MODES = [
+  {key:'trending', label:'🔥 Trending'},
+  {key:'topRated', label:'⭐ Top Rated'},
+  {key:'newest', label:'🆕 Newest'},
+  {key:'mostMembers', label:'👥 Most Members'}
+];
+function blankCurationOrder(){ return {trending:null, topRated:null, newest:null, mostMembers:null}; }
+function getCurationOrder(g){ return g.curationOrder || blankCurationOrder(); }
+
+function renderCuration(){
+  const grid = document.getElementById('curationGrid');
+  if(!grid) return;
+  const groups = getGroups();
+
+  grid.innerHTML = CURATION_MODES.map(mode=>{
+    const inList = groups
+      .filter(g=>{ const v = getCurationOrder(g)[mode.key]; return v!==null && v!==undefined; })
+      .sort((a,b)=> getCurationOrder(a)[mode.key]-getCurationOrder(b)[mode.key]);
+    const notInList = groups.filter(g=>{ const v = getCurationOrder(g)[mode.key]; return v===null || v===undefined; });
+
+    const listHtml = inList.length ? inList.map(g=>`
+      <div class="curation-item" draggable="true" data-id="${g.id}" data-mode="${mode.key}">
+        <span class="curation-drag">⠿</span>
+        <span>${g.emo||catEmo(g.cat)}</span>
+        <span class="curation-item-name">${g.name}</span>
+        ${ratingChip(g.rating, null)}
+        <button class="curation-remove" onclick="curationRemove(${g.id},'${mode.key}')" title="Unpin from ${mode.label}">✕</button>
+      </div>`).join('') : `<div class="curation-empty">Nothing pinned yet — add a group below.</div>`;
+
+    const options = notInList.length
+      ? `<option value="">Pick a group...</option>` + notInList.map(g=>`<option value="${g.id}">${g.emo||catEmo(g.cat)} ${g.name}</option>`).join('')
+      : `<option value="">All groups already pinned</option>`;
+
+    return `<div class="curation-col">
+      <div class="curation-col-head">
+        <div class="curation-col-title">${mode.label}</div>
+        <div class="curation-col-count">${inList.length} pinned</div>
+      </div>
+      <div class="curation-list" data-mode="${mode.key}">${listHtml}</div>
+      <div class="curation-add-row">
+        <select id="curationAddSelect-${mode.key}" ${notInList.length?'':'disabled'}>${options}</select>
+        <button class="btn btn-solid btn-ghost-sm" ${notInList.length?'':'disabled'} onclick="curationAdd('${mode.key}')">+ Add</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  attachCurationDragHandlers();
+}
+
+function curationAdd(modeKey){
+  const select = document.getElementById('curationAddSelect-'+modeKey);
+  const id = Number(select.value);
+  if(!id) return;
+  const groups = getGroups();
+  const g = groups.find(x=>x.id===id);
+  if(!g) return;
+  if(!g.curationOrder) g.curationOrder = blankCurationOrder();
+  const maxOrder = groups.reduce((m,x)=> Math.max(m, (x.curationOrder && x.curationOrder[modeKey]) || 0), 0);
+  g.curationOrder[modeKey] = maxOrder + 1;
+  saveGroups(groups);
+  showToast(`${g.name} pinned`);
+  renderCuration();
+}
+function curationRemove(id, modeKey){
+  const groups = getGroups();
+  const g = groups.find(x=>x.id===id);
+  if(!g || !g.curationOrder) return;
+  g.curationOrder[modeKey] = null;
+  saveGroups(groups);
+  showToast('Unpinned');
+  renderCuration();
+}
+function attachCurationDragHandlers(){
+  document.querySelectorAll('.curation-list').forEach(list=>{
+    list.addEventListener('dragover', e=>{
+      e.preventDefault();
+      const dragging = list.querySelector('.curation-item.dragging');
+      if(!dragging) return;
+      const after = getDragAfterElement(list, e.clientY);
+      if(after==null) list.appendChild(dragging);
+      else list.insertBefore(dragging, after);
+    });
+  });
+  document.querySelectorAll('.curation-item').forEach(item=>{
+    item.addEventListener('dragstart', function(){ this.classList.add('dragging'); });
+    item.addEventListener('dragend', function(){
+      this.classList.remove('dragging');
+      persistCurationOrder(this.dataset.mode, this.closest('.curation-list'));
+    });
+  });
+}
+function getDragAfterElement(container, y){
+  const items = [...container.querySelectorAll('.curation-item:not(.dragging)')];
+  return items.reduce((closest, child)=>{
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height/2;
+    if(offset < 0 && offset > closest.offset) return {offset, element: child};
+    return closest;
+  }, {offset:-Infinity, element:null}).element;
+}
+function persistCurationOrder(modeKey, listEl){
+  if(!listEl) return;
+  const ids = [...listEl.querySelectorAll('.curation-item')].map(el=>Number(el.dataset.id));
+  const groups = getGroups();
+  ids.forEach((id, idx)=>{
+    const g = groups.find(x=>x.id===id);
+    if(g){
+      if(!g.curationOrder) g.curationOrder = blankCurationOrder();
+      g.curationOrder[modeKey] = idx+1;
+    }
+  });
+  saveGroups(groups);
+}
+
+/* ================= BACKUP / RESTORE ================= */
+function exportData(){
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    groups: getGroups(),
+    categories: getCategories(),
+    users: getUsers(),
+    reports: getReports()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `groupscan-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast('Backup downloaded');
+}
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!confirm('This replaces all current groups, categories, users and reports with the backup file. Continue?')){
+        event.target.value = '';
+        return;
+      }
+      if(data.groups) saveGroups(data.groups);
+      if(data.categories) saveCategories(data.categories);
+      if(data.users) saveUsers(data.users);
+      if(data.reports) saveReports(data.reports);
+      showToast('Backup restored');
+      renderAll();
+    }catch(err){
+      alert('That file could not be read as a valid backup.');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+/* ================= INIT ================= */
+function renderAll(){
+  renderOverview();
+  renderPending();
+  renderGroups();
+  renderCategoriesTab();
+  renderUsers();
+  renderReports();
+  renderCuration();
+}
+getCategories(); getGroups();
+renderAll();
+
+
+/* ========================================================================= 
+   ✨ NEW UI/UX SCRIPTS (Added below without touching your original code)
+========================================================================= */
+
+// 1. Particles Setup
+function initParticles() {
+  const pContainer = document.getElementById('particles');
+  const colors = ['#22D3A6', '#7C6CFF', '#00B8FF'];
+  for(let i=0; i<18; i++){
+    let p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.width = p.style.height = (Math.random() * 3 + 2) + 'px';
+    p.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration = (Math.random() * 8 + 12) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    pContainer.appendChild(p);
+  }
+}
+initParticles();
+
+// 2. Custom Cursor & Glow
+document.addEventListener('mousemove', e => {
+  const cursor = document.getElementById('custom-cursor');
+  const glow = document.getElementById('mouse-glow');
+  if(cursor) { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; }
+  if(glow) { glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px'; }
+});
+document.addEventListener('mouseover', e => {
+  if(e.target.closest('button, a, .nav-item, select, input, .curation-item, .fchip, .icon-btn, .curation-remove, .pm-item, .admin-chip, label')) {
+    document.getElementById('custom-cursor').classList.add('expand');
+  } else {
+    document.getElementById('custom-cursor').classList.remove('expand');
+  }
+});
+
+// 3. Ripple Effect (Event Delegation ensures it works on dynamically rendered elements)
+document.addEventListener('click', function(e) {
+  const target = e.target.closest('.btn, .nav-item, .fchip, .curation-item, .pm-item, .icon-btn');
+  if(target) {
+    const rect = target.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.left = `${e.clientX - rect.left}px`;
+    ripple.style.top = `${e.clientY - rect.top}px`;
+    target.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  }
+});
+
+// 4. Dashboard Clock
+function updateClock() {
+  const cTime = document.getElementById('c-time');
+  const cDate = document.getElementById('c-date');
+  if(cTime && cDate) {
+    const now = new Date();
+    cTime.innerText = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    cDate.innerText = now.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+  }
+}
+setInterval(updateClock, 1000); updateClock();
+
+// 5. Admin Dropdown Toggle
+document.addEventListener('click', function(e) {
+  const dropWrap = e.target.closest('#adminDropdown');
+  const menu = document.getElementById('profMenu');
+  if(dropWrap) {
+    menu.classList.toggle('show');
+  } else if (menu) {
+    menu.classList.remove('show');
+  }
+});
+
+// 6. Non-intrusive Animated Number Counter
+function animateValue(obj, start, end, duration) {
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    obj.innerHTML = Math.floor(progress * (end - start) + start);
+    if (progress < 1) window.requestAnimationFrame(step);
+    else obj.innerHTML = end;
+  };
+  window.requestAnimationFrame(step);
+}
+
+const animatedElements = new WeakSet();
+setInterval(() => {
+  document.querySelectorAll('.stat-card .num').forEach(el => {
+    if(!animatedElements.has(el) && el.innerText.trim() !== '') {
+      animatedElements.add(el);
+      const val = parseInt(el.innerText) || 0;
+      animateValue(el, 0, val, 1000);
+    }
+  });
+}, 500);
+
+// 7. Mobile Sidebar Toggle Function
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sbOverlay');
+  if(sidebar && overlay) {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+  }
+}
+
+</script>
+</body>
+</html>

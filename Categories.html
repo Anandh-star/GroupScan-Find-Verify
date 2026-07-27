@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Categories — GroupScan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F1A; --surface:#131A2B; --surface-2:#1B2438; --border:#262F47;
+    --text:#EDF1FA; --text-muted:#8D96B3;
+    --verified:#22D3A6; --verified-dim:rgba(34,211,166,.12);
+    --caution:#FFB238; --caution-dim:rgba(255,178,56,.12);
+    --danger:#FF4D5E; --danger-dim:rgba(255,77,94,.12);
+    --violet:#7C6CFF; --radius:16px;
+    --r1:#FF4D5E; --r1-dim:rgba(255,77,94,.13);
+    --r2:#FF8145; --r2-dim:rgba(255,129,69,.13);
+    --r3:#FFB238; --r3-dim:rgba(255,178,56,.13);
+    --r4:#A8D93C; --r4-dim:rgba(168,217,60,.13);
+    --r5:#22D3A6; --r5-dim:rgba(34,211,166,.13);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.5;overflow-x:hidden;}
+  body.menu-open {overflow: hidden;}
+  h1,h2,h3,.brand,.stat-num{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--verified);color:#04150F;}
+
+  .bg-glow{position:fixed;inset:0;z-index:-2;
+    background:radial-gradient(circle at 15% 10%, rgba(124,108,255,.14), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(34,211,166,.12), transparent 40%), var(--bg);}
+  .grain{position:fixed;inset:0;z-index:-1;opacity:.035;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  /* ---------- Navigation Bar ---------- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 6vw;
+    background: rgba(11, 15, 26, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(38, 47, 71, 0.6);
+    transition: all 0.3s ease;
+  }
+  
+  .brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.02em;
+    z-index: 1001;
+  }
+  
+  .brand .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--verified);
+    box-shadow: 0 0 12px var(--verified);
+  }
+  
+  .nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+  
+  .nav-links a {
+    transition: color 0.2s;
+    font-weight: 500;
+  }
+  
+  .nav-links a.active {
+    color: var(--verified);
+  }
+  
+  .nav-links a:hover {
+    color: var(--text);
+  }
+  
+  .nav-cta {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .btn {
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: 'Inter', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border-color: transparent;
+  }
+  
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+  }
+  
+  .btn-solid {
+    background: var(--verified);
+    color: #04150F;
+    border: none;
+  }
+  
+  .btn-solid:hover {
+    box-shadow: 0 0 22px rgba(34, 211, 166, 0.45);
+    transform: translateY(-1px);
+  }
+  
+  .menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+    padding: 0;
+  }
+  
+  .menu-toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: var(--text);
+    border-radius: 2px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .menu-toggle.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  
+  .menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  
+  .menu-toggle.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  /* ---------- Mobile Navigation ---------- */
+  @media (max-width: 900px) {
+    .menu-toggle {
+      display: flex;
+    }
+    
+    .nav-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100dvh;
+      background: rgba(11, 15, 26, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      padding: 80px 6vw;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+    
+    .nav-menu.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .nav-links {
+      flex-direction: column;
+      gap: 24px;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+    
+    .nav-cta {
+      flex-direction: column;
+      width: 100%;
+      max-width: 300px;
+      gap: 16px;
+    }
+    
+    .nav-cta .btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+    }
+    
+    .nav-cta .btn-ghost {
+      border: 1px solid var(--border);
+    }
+  }
+
+  /* ---------- Page Header ---------- */
+  .page-head{padding:56px 6vw 30px;text-align:center;position:relative;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid var(--border);
+    border-radius:100px;font-size:.78rem;color:var(--violet);margin-bottom:18px;background:rgba(124,108,255,.1);}
+  .page-head h1{font-size:clamp(1.9rem,4.2vw,2.8rem);font-weight:700;letter-spacing:-.03em;}
+  .page-head p{color:var(--text-muted);margin-top:12px;max-width:520px;margin-inline:auto;}
+
+  /* ---------- Layout ---------- */
+  .browse{display:grid;grid-template-columns:270px 1fr;gap:28px;padding:0 6vw 70px;align-items:start;}
+  .sidebar{position:sticky;top:90px;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:22px;}
+  .sidebar h3{font-size:.95rem;font-weight:700;margin-bottom:12px;}
+  .sb-block label{display:block;font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+  .sb-search{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+    padding:10px 12px;color:var(--text);font-size:.86rem;outline:none;font-family:'Inter';}
+  .sb-search:focus{border-color:var(--verified);}
+  .cat-list{display:flex;flex-direction:column;gap:4px;max-height:340px;overflow-y:auto;padding-right:4px;}
+  .cat-list::-webkit-scrollbar{width:5px;}
+  .cat-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+  .cat-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;
+    font-size:.86rem;color:var(--text-muted);transition:.18s;}
+  .cat-item:hover{background:var(--surface-2);color:var(--text);}
+  .cat-item.active{background:var(--verified-dim);color:var(--verified);font-weight:600;}
+  .cat-item .cnt{margin-left:auto;font-size:.72rem;font-family:'JetBrains Mono';color:var(--text-muted);}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{padding:7px 12px;border:1px solid var(--border);border-radius:100px;font-size:.78rem;
+    color:var(--text-muted);cursor:pointer;transition:.18s;background:var(--surface-2);}
+  .chip.active{background:var(--verified);color:#04150F;border-color:var(--verified);font-weight:600;}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;font-size:.85rem;}
+  .switch{position:relative;width:42px;height:24px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:20px;cursor:pointer;transition:.2s;flex-shrink:0;}
+  .switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+    background:var(--text-muted);transition:.2s;}
+  .switch.on{background:var(--verified-dim);border-color:var(--verified);}
+  .switch.on::after{transform:translateX(18px);background:var(--verified);}
+  .reset-link{font-size:.8rem;color:var(--violet);cursor:pointer;text-align:center;}
+
+  /* ---------- Results ---------- */
+  .results-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+  .results-count{font-size:.9rem;color:var(--text-muted);}
+  .results-count b{color:var(--text);}
+  .sort-box select{background:var(--surface);border:1px solid var(--border);color:var(--text);
+    padding:9px 12px;border-radius:10px;font-size:.83rem;font-family:'Inter';outline:none;cursor:pointer;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;
+    position:relative;overflow:hidden;opacity:0;transform:translateY(24px);transition:opacity .55s ease,transform .55s ease,border-color .25s;}
+  .card.in{opacity:1;transform:translateY(0);}
+  .card:hover{border-color:var(--verified);}
+  .card:hover .scan{opacity:1;}
+  .scan{position:absolute;left:0;right:0;height:2px;top:0;
+    background:linear-gradient(90deg,transparent,var(--verified),transparent);opacity:0;transition:opacity .3s;animation:scanMove 2.4s linear infinite;}
+  @keyframes scanMove{0%{top:0;}100%{top:100%;}}
+  .card-top{display:flex;gap:12px;align-items:flex-start;}
+  .avatar{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-size:1.4rem;background:var(--surface-2);flex-shrink:0;position:relative;}
+  .avatar::after{content:'';position:absolute;inset:-4px;border-radius:14px;border:1.5px solid var(--verified);opacity:.5;}
+  .card-title{font-weight:600;font-size:.98rem;}
+  .card-cat{font-size:.74rem;color:var(--text-muted);margin-top:2px;}
+  .badge{margin-left:auto;font-size:.68rem;font-weight:700;padding:4px 9px;border-radius:100px;
+    display:flex;align-items:center;gap:4px;white-space:nowrap;}
+  .badge.verified{background:var(--verified-dim);color:var(--verified);}
+  .badge.caution{background:var(--caution-dim);color:var(--caution);}
+  .badge.scam{background:var(--danger-dim);color:var(--danger);}
+  .badge .bdot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .card-desc{font-size:.83rem;color:var(--text-muted);margin-top:14px;min-height:38px;}
+  .card-meta{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+  .rating{font-size:.82rem;color:var(--caution);font-weight:600;}
+  .rating-chip{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;padding:4px 9px;
+    border-radius:8px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+  .rating-chip.r1{color:var(--r1);background:var(--r1-dim);}
+  .rating-chip.r2{color:var(--r2);background:var(--r2-dim);}
+  .rating-chip.r3{color:var(--r3);background:var(--r3-dim);}
+  .rating-chip.r4{color:var(--r4);background:var(--r4-dim);}
+  .rating-chip.r5{color:var(--r5);background:var(--r5-dim);}
+  .rating-chip .rc-reviews{opacity:.72;font-weight:500;}
+  .members{font-size:.76rem;color:var(--text-muted);}
+  .join-btn{margin-top:14px;width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);
+    background:var(--surface-2);color:var(--text);font-weight:600;font-size:.85rem;cursor:pointer;transition:.2s;}
+  .join-btn:hover{background:var(--verified);color:#04150F;border-color:var(--verified);}
+  .join-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  .empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);}
+  .empty .emo{font-size:2.4rem;display:block;margin-bottom:10px;}
+
+  footer{padding:50px 6vw 30px;border-top:1px solid var(--border);display:flex;justify-content:space-between;
+    flex-wrap:wrap;gap:24px;color:var(--text-muted);font-size:.85rem;}
+  footer .fcol h4{color:var(--text);font-size:.85rem;margin-bottom:12px;}
+  footer .fcol a{display:block;padding:4px 0;color:var(--text-muted);transition:.2s;}
+  footer .fcol a:hover{color:var(--verified);}
+
+  @media(max-width:900px){
+    .browse{grid-template-columns:1fr;}
+    .sidebar{position:static;}
+  }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="grain"></div>
+
+<nav id="navbar">
+  <div class="brand"><span class="dot"></span>GroupScan</div>
+  
+  <div class="nav-menu" id="navMenu">
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="Categories.html" class="active">Categories</a>
+      <a href="Submitgroup.html">Submit Group</a>
+      <a href="blog.html">Blog</a>
+      <a href="about.html">About</a>
+    </div>
+    <div class="nav-cta">
+      <a href="login.html" class="btn btn-ghost">Log in</a>
+      <a href="register.html" class="btn btn-solid">Join Free</a>
+    </div>
+  </div>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+</nav>
+
+<div class="page-head">
+  <div class="eyebrow" id="totalGroupsEyebrow">🗂 0 categories · 0 groups</div>
+  <h1>Browse every category</h1>
+  <p>Filter by category, country, verification status and rating to find the right group in seconds.</p>
+</div>
+
+<div class="browse">
+  <aside class="sidebar">
+    <div class="sb-block">
+      <label>Search in categories</label>
+      <input class="sb-search" id="sbSearch" type="text" placeholder="Search group name...">
+    </div>
+
+    <div class="sb-block">
+      <h3>Categories</h3>
+      <div class="cat-list" id="catList"></div>
+    </div>
+
+    <div class="sb-block">
+      <label>Country</label>
+      <div class="chip-row" id="countryChips"></div>
+    </div>
+
+    <div class="sb-block">
+      <label>Trust Status</label>
+      <div class="chip-row" id="statusChips"></div>
+    </div>
+
+    <div class="sb-block toggle-row">
+      <span>Verified only</span>
+      <div class="switch" id="verifiedSwitch" onclick="toggleVerified()"></div>
+    </div>
+
+    <div class="reset-link" onclick="resetFilters()">Reset all filters</div>
+  </aside>
+
+  <main>
+    <div class="results-head">
+      <div class="results-count" id="resultsCount"><b>0</b> groups found</div>
+      <div class="sort-box">
+        <select id="sortSelect" onchange="renderResults()">
+          <option value="trend">Sort: Trending</option>
+          <option value="rating">Sort: Top Rated</option>
+          <option value="new">Sort: Newest</option>
+          <option value="members">Sort: Most Members</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid" id="resultsGrid"></div>
+  </main>
+</div>
+
+<footer>
+  <div class="fcol">
+    <h4>GroupScan</h4>
+    <p style="max-width:220px;">A verified directory for WhatsApp, Telegram & Discord community groups.</p>
+  </div>
+  <div class="fcol">
+    <h4>Explore</h4>
+    <a href="Categories.html">Categories</a>
+    <a href="Submitgroup.html">Submit a Group</a>
+    <a href="blog.html">Safety Blog</a>
+  </div>
+  <div class="fcol">
+    <h4>Account</h4>
+    <a href="login.html">Login</a>
+    <a href="register.html">Register</a>
+    <a href="Profile.html">Profile</a>
+  </div>
+  <div class="fcol">
+    <h4>Company</h4>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</footer>
+
+<script>
+/* ================= NAVBAR TOGGLE ================= */
+const menuToggle = document.getElementById('menuToggle');
+const navMenu = document.getElementById('navMenu');
+const body = document.body;
+const navLinks = document.querySelectorAll('.nav-links a, .nav-cta a');
+
+function toggleMenu() {
+  menuToggle.classList.toggle('active');
+  navMenu.classList.toggle('active');
+  body.classList.toggle('menu-open');
+}
+
+menuToggle.addEventListener('click', toggleMenu);
+
+navLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    if (navMenu.classList.contains('active')) {
+      toggleMenu();
+    }
+  });
+});
+
+/* ================= LOCAL STORAGE HELPERS ================= */
+// We use the same functions as index/admin to keep things in sync
+function getCategories(){
+  return JSON.parse(localStorage.getItem('wcd_categories') || '[]');
+}
+function getGroups(){ 
+  return JSON.parse(localStorage.getItem('wcd_groups') || '[]'); 
+}
+function formatMembers(n){ n=Number(n)||0; return n>=1000 ? (n/1000).toFixed(1).replace('.0','')+'K' : String(n); }
+function emptyGridHTML(msg){ return `<div class="empty"><span class="emo">🌱</span>${msg}</div>`; }
+
+/* Real trend score computed from actual data */
+function trendScore(g){
+  return (Number(g.membersNum)||0) + (Number(g.reviews)||0)*20 + (Number(g.rating)||0)*50;
+}
+
+/* ================= PLATFORM AUTO-DETECT ================= */
+function detectPlatform(link){
+  if(!link) return {label:'Visit Website', icon:'🌐'};
+  let host = '';
+  try{ host = new URL(link.trim()).hostname.toLowerCase().replace(/^www\./,''); }
+  catch(e){ host = link.toLowerCase(); }
+  if(host.includes('t.me') || host.includes('telegram.me') || host.includes('telegram.org'))
+    return {label:'Open in Telegram', icon:'📨'};
+  if(host.includes('instagram.com'))
+    return {label:'Open in Instagram', icon:'📸'};
+  if(host.includes('wa.me') || host.includes('whatsapp.com'))
+    return {label:'Open in WhatsApp', icon:'🟢'};
+  if(host.includes('discord.gg') || host.includes('discord.com'))
+    return {label:'Open in Discord', icon:'🎮'};
+  if(host.includes('youtube.com') || host.includes('youtu.be'))
+    return {label:'Open on YouTube', icon:'▶️'};
+  if(host.includes('facebook.com') || host.includes('fb.com'))
+    return {label:'Open on Facebook', icon:'📘'};
+  if(host.includes('twitter.com') || host.includes('x.com'))
+    return {label:'Open on X', icon:'✖️'};
+  return {label:'Visit Website', icon:'🌐'};
+}
+
+/* ================= RATING COLOR BANDS ================= */
+function ratingBand(rating){
+  const r = Number(rating)||0;
+  if(r < 1) return 1;
+  if(r < 2) return 2;
+  if(r < 3) return 3;
+  if(r < 4) return 4;
+  return 5;
+}
+function ratingChip(rating, reviews){
+  const band = ratingBand(rating);
+  const rv = (reviews===null || reviews===undefined) ? '' : ` <span class="rc-reviews">(${reviews})</span>`;
+  return `<span class="rating-chip r${band}">★ ${(Number(rating)||0).toFixed(1)}${rv}</span>`;
+}
+
+/* ================= HOME CURATION ================= */
+function applyCuration(groups, modeKey, sortFn){
+  const pinned = groups
+    .filter(g=> g.curationOrder && g.curationOrder[modeKey]!==null && g.curationOrder[modeKey]!==undefined)
+    .sort((a,b)=> a.curationOrder[modeKey]-b.curationOrder[modeKey]);
+  const pinnedIds = new Set(pinned.map(g=>g.id));
+  const rest = groups.filter(g=>!pinnedIds.has(g.id)).sort(sortFn);
+  return [...pinned, ...rest];
+}
+
+/* ================= STATE ================= */
+const state = { search:'', category:'', country:'', status:'', verifiedOnly:false, sort:'trend' };
+const params = new URLSearchParams(window.location.search);
+if(params.get('category')) state.category = params.get('category');
+if(params.get('q')) state.search = params.get('q');
+
+function badgeHTML(status){
+  const map = {
+    verified:{cls:'verified',label:'Verified'}, caution:{cls:'caution',label:'Caution'},
+    scam:{cls:'scam',label:'Scam Risk'}, pending:{cls:'caution',label:'Pending'}
+  };
+  const b = map[status] || map.pending;
+  return `<span class="badge ${b.cls}"><span class="bdot"></span>${b.label}</span>`;
+}
+
+function joinGroup(id){
+  const g = getGroups().find(x=>x.id===id);
+  if(!g || !g.inviteLink){ alert('This group has no invite link yet.'); return; }
+  window.open(g.inviteLink, '_blank', 'noopener');
+}
+
+function cardHTML(g){
+  const rating = Number(g.rating)||0;
+  const reviews = Number(g.reviews)||0;
+  const hasLink = !!g.inviteLink;
+  const platform = detectPlatform(g.inviteLink);
+  // Re-use catEmo logic from Admin if emo is missing
+  let emo = g.emo;
+  if(!emo){
+      const c = getCategories().find(c=>c.name===g.cat);
+      emo = c ? c.emo : '🏷';
+  }
+
+  return `
+  <div class="card">
+    <div class="scan"></div>
+    <div class="card-top">
+      <div class="avatar">${emo}</div>
+      <div><div class="card-title">${g.name}</div><div class="card-cat">${g.cat} · ${g.city ? g.city+', ' : ''}${g.country}</div></div>
+      ${badgeHTML(g.status)}
+    </div>
+    <div class="card-desc">${g.desc || ''}</div>
+    <div class="card-meta">
+      ${ratingChip(rating, reviews)}
+      <div class="members">${formatMembers(g.membersNum)} members</div>
+    </div>
+    <button class="join-btn" ${hasLink?'':'disabled'} onclick="joinGroup(${g.id})">${hasLink ? platform.icon+' '+platform.label+' →' : 'Link not available'}</button>
+  </div>`;
+}
+
+function updateEyebrow() {
+    const cats = getCategories().length;
+    const groups = getGroups().filter(g=>g.status!=='pending' && g.status!=='rejected').length;
+    document.getElementById('totalGroupsEyebrow').innerHTML = `🗂 ${cats} categories · ${groups} groups`;
+}
+
+function renderSidebar(){
+  // Fetch dynamic categories
+  const DYNAMIC_CATEGORIES = getCategories();
+  const groups = getGroups().filter(g=>g.status!=='pending' && g.status!=='rejected'); // Only show public groups in counts
+  const catCounts = {};
+  groups.forEach(g=> catCounts[g.cat] = (catCounts[g.cat]||0)+1 );
+
+  const catListHTML = [`<div class="cat-item ${state.category===''?'active':''}" onclick="setCategory('')"><span>🗂</span><span>All Categories</span><span class="cnt mono">${groups.length}</span></div>`]
+    .concat(DYNAMIC_CATEGORIES.map(c=>`
+      <div class="cat-item ${state.category===c.name?'active':''}" onclick="setCategory('${c.name}')">
+        <span>${c.emo}</span><span>${c.name}</span><span class="cnt mono">${catCounts[c.name]||0}</span>
+      </div>`)).join('');
+  document.getElementById('catList').innerHTML = catListHTML;
+
+  const countries = [...new Set(groups.map(g=>g.country).filter(Boolean))]; // Filter out empty countries
+  document.getElementById('countryChips').innerHTML = ['All',...countries].map(c=>
+    `<div class="chip ${ (c==='All'&&state.country==='') || state.country===c ?'active':''}" onclick="setCountry('${c==='All'?'':c}')">${c}</div>`
+  ).join('');
+
+  const statuses = [{k:'verified',l:'✅ Verified'},{k:'caution',l:'🟡 Caution'},{k:'scam',l:'🔴 Scam Risk'}];
+  document.getElementById('statusChips').innerHTML = `<div class="chip ${state.status===''?'active':''}" onclick="setStatus('')">All</div>` +
+    statuses.map(s=>`<div class="chip ${state.status===s.k?'active':''}" onclick="setStatus('${s.k}')">${s.l}</div>`).join('');
+
+  document.getElementById('verifiedSwitch').classList.toggle('on', state.verifiedOnly);
+  document.getElementById('sbSearch').value = state.search;
+}
+
+function setCategory(c){ state.category = c; renderSidebar(); renderResults(); }
+function setCountry(c){ state.country = c; renderSidebar(); renderResults(); }
+function setStatus(s){ state.status = s; renderSidebar(); renderResults(); }
+function toggleVerified(){ state.verifiedOnly = !state.verifiedOnly; renderSidebar(); renderResults(); }
+function resetFilters(){ state.search=''; state.category=''; state.country=''; state.status=''; state.verifiedOnly=false;
+  document.getElementById('sortSelect').value='trend'; state.sort='trend'; renderSidebar(); renderResults(); }
+
+document.getElementById('sbSearch').addEventListener('input', e=>{ state.search = e.target.value; renderResults(); });
+
+function renderResults(){
+  state.sort = document.getElementById('sortSelect').value;
+  let groups = getGroups().filter(g=>{
+    if(g.status==='pending' || g.status==='rejected') return false; // hidden from public until admin approves
+    const q = state.search.trim().toLowerCase();
+    const matchesQ = !q
+      || g.name.toLowerCase().includes(q)
+      || (g.desc||'').toLowerCase().includes(q)
+      || (g.country && g.country.toLowerCase().includes(q))
+      || (g.city && g.city.toLowerCase().includes(q));
+    const matchesCat = !state.category || g.cat === state.category;
+    const matchesCountry = !state.country || g.country === state.country;
+    const matchesStatus = !state.status || g.status === state.status;
+    const matchesVerified = !state.verifiedOnly || g.status === 'verified';
+    return matchesQ && matchesCat && matchesCountry && matchesStatus && matchesVerified;
+  });
+
+  // Sort dropdown maps straight onto the 4 Home Curation modes Admin can pin in the dashboard
+  if(state.sort==='trend') groups = applyCuration(groups,'trending',(a,b)=>trendScore(b)-trendScore(a));
+  if(state.sort==='rating') groups = applyCuration(groups,'topRated',(a,b)=>(Number(b.rating)||0)-(Number(a.rating)||0));
+  if(state.sort==='new') groups = applyCuration(groups,'newest',(a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  if(state.sort==='members') groups = applyCuration(groups,'mostMembers',(a,b)=>(Number(b.membersNum)||0)-(Number(a.membersNum)||0));
+
+  document.getElementById('resultsCount').innerHTML = `<b>${groups.length}</b> group${groups.length!==1?'s':''} found`;
+  const grid = document.getElementById('resultsGrid');
+  grid.innerHTML = groups.length ? groups.map(cardHTML).join('') :
+    `<div class="empty"><span class="emo">🔍</span>No groups match these filters.<br>Try resetting or searching a different term.</div>`;
+  observeCards();
+}
+
+function observeCards(){
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:.12});
+  document.querySelectorAll('.card:not(.in)').forEach(el=>io.observe(el));
+}
+
+/* ================= INIT ================= */
+updateEyebrow();
+renderSidebar();
+renderResults();
+</script>
+</body>
+</html>

@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Submit Group — GroupScan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F1A;
+    --surface:#131A2B;
+    --surface-2:#1B2438;
+    --border:#262F47;
+    --text:#EDF1FA;
+    --text-muted:#8D96B3;
+    --verified:#22D3A6;
+    --verified-dim:rgba(34,211,166,.12);
+    --caution:#FFB238;
+    --caution-dim:rgba(255,178,56,.12);
+    --danger:#FF4D5E;
+    --danger-dim:rgba(255,77,94,.12);
+    --violet:#7C6CFF;
+    --radius:16px;
+    --shadow:0 20px 60px rgba(0,0,0,.35);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  body.menu-open {
+    overflow: hidden;
+  }
+  h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--verified);color:#04150F;}
+
+
+  .bg-glow{
+    position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(124,108,255,.16), transparent 40%),
+      radial-gradient(circle at 85% 25%, rgba(34,211,166,.14), transparent 40%),
+      var(--bg);
+  }
+  .grain{
+    position:fixed;inset:0;z-index:-1;opacity:.035;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+
+  nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 6vw;
+    background:rgba(11,15,26,.72);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+  }
+  .brand{
+    font-size:1.3rem;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    letter-spacing:-.02em;
+  }
+  .brand .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--verified);
+    box-shadow:0 0 12px var(--verified);
+  }
+  
+  @media(min-width: 721px) {
+    .nav-menu {
+      display: contents;
+    }
+  }
+
+  .nav-links{
+    display:flex;gap:28px;align-items:center;font-size:.92rem;color:var(--text-muted);
+    flex-wrap:wrap;
+  }
+  .nav-links a:hover{color:var(--text);}
+  .nav-links a.active{color:var(--verified);}
+  .nav-cta{display:flex;gap:10px;}
+  .btn{
+    padding:9px 18px;border-radius:10px;font-size:.88rem;font-weight:600;
+    border:1px solid var(--border);cursor:pointer;transition:.2s;font-family:'Inter',sans-serif;
+    background:transparent;color:var(--text);
+  }
+  .btn:hover{border-color:var(--verified);transform:translateY(-1px);}
+  .btn-solid{background:var(--verified);color:#04150F;border:none;}
+  .btn-solid:hover{box-shadow:0 0 22px rgba(34,211,166,.45);}
+  
+  .menu-toggle{
+    display:none;background:none;border:none;color:var(--text);cursor:pointer;
+    padding:4px; transition: color 0.2s;
+  }
+  .menu-toggle:hover{color:var(--verified);}
+
+
+  .page-head{
+    padding:56px 6vw 26px;
+    text-align:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 14px;border:1px solid var(--border);
+    border-radius:100px;font-size:.78rem;color:var(--violet);
+    margin-bottom:18px;background:rgba(124,108,255,.1);
+  }
+  .page-head h1{
+    font-size:clamp(2rem,4.2vw,3rem);
+    font-weight:700;
+    letter-spacing:-.03em;
+  }
+  .page-head p{
+    color:var(--text-muted);
+    margin-top:12px;
+    max-width:760px;
+    margin-inline:auto;
+  }
+
+
+  .wrap{
+    padding:0 6vw 70px;
+    display:grid;
+    grid-template-columns:1.05fr .95fr;
+    gap:18px;
+    align-items:start;
+  }
+  .panel{
+    background:linear-gradient(180deg, rgba(19,26,43,.96), rgba(19,26,43,.84));
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .heroMain{
+    padding:24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .heroMain::after{
+    content:'';
+    position:absolute;
+    inset:auto -100px -110px auto;
+    width:300px;height:300px;
+    background:radial-gradient(circle, rgba(34,211,166,.16), transparent 70%);
+    filter:blur(12px);
+
+    pointer-events:none;
+  }
+  .section-title{
+    margin:0;
+    font-size:1.2rem;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .sub{
+    color:var(--text-muted);
+    max-width:64ch;
+    line-height:1.7;
+    margin-top:12px;
+  }
+  .mini{
+    display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;
+  }
+  .pill{
+    font-size:.74rem;color:var(--text-muted);
+    border:1px solid var(--border);
+    padding:6px 10px;border-radius:999px;
+    background:rgba(11,15,26,.24);
+  }
+
+
+  .formPanel{
+    padding:22px;
+  }
+  .formGrid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+  .full{grid-column:1/-1;}
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+  }
+  .field label{
+    font-size:.76rem;
+    color:var(--text-muted);
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  .field input,
+  .field select,
+  .field textarea{
+    width:100%;
+    background:var(--surface-2);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px 14px;
+    outline:none;
+    font-family:'Inter',sans-serif;
+    transition:.2s;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{
+    border-color:var(--verified);
+    box-shadow:0 0 0 3px rgba(34,211,166,.08);
+  }
+  .field textarea{
+    min-height:100px;
+    resize:vertical;
+  }
+  .switchRow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    background:rgba(11,15,26,.25);
+    gap:14px;
+
+    position:relative;
+    z-index:5;
+  }
+  .switchText{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  .switchText b{font-size:.9rem;}
+  .switchText span{font-size:.8rem;color:var(--text-muted);}
+  .toggle{
+    width:46px;height:26px;border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    position:relative;
+    cursor:pointer;
+    flex-shrink:0;
+    z-index:999;
+    pointer-events:auto;
+  }
+  .toggle::after{
+    content:'';
+    position:absolute;
+    top:3px;left:3px;
+    width:18px;height:18px;border-radius:50%;
+    background:var(--text-muted);
+    transition:.2s;
+  }
+  .toggle.on{
+    background:var(--verified-dim);
+    border-color:var(--verified);
+  }
+  .toggle.on::after{
+    transform:translateX(20px);
+    background:var(--verified);
+  }
+
+
+  .actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:18px;
+  }
+  .actions .btn{
+    padding:12px 16px;
+  }
+  .btn-wide{min-width:160px;}
+  .note{
+    margin-top:14px;
+    color:var(--text-muted);
+    font-size:.82rem;
+    line-height:1.6;
+  }
+
+
+  .preview{
+    padding:22px;
+  }
+  .previewCard{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:18px;
+    transition:.25s;
+    position:sticky;
+    top:96px;
+  }
+  .previewCard:hover{border-color:var(--verified);}
+  .previewTop{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .avatar{
+    width:52px;height:52px;border-radius:14px;
+    background:var(--surface-2);
+    display:grid;place-items:center;
+    font-size:1.4rem;
+    position:relative;
+    flex-shrink:0;
+  }
+  .avatar::after{
+    content:'';
+    position:absolute;
+    inset:-4px;
+    border-radius:16px;
+    border:1px solid var(--verified);
+    opacity:.45;
+  }
+  .title{font-weight:700;}
+  .meta{font-size:.78rem;color:var(--text-muted);margin-top:3px;line-height:1.5;}
+  .desc{
+    margin-top:14px;
+    color:#bcc5de;
+    font-size:.88rem;
+    line-height:1.6;
+  }
+  .miniInfo{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+
+
+  .toast{
+    position:fixed;
+    bottom:24px;
+    right:24px;
+    background:var(--verified);
+    color:#04150F;
+    padding:12px 18px;
+    border-radius:11px;
+    font-size:.85rem;
+    font-weight:600;
+    z-index:300;
+    opacity:0;
+    transform:translateY(10px);
+    transition:.3s;
+    pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translateY(0);}
+  .hidden{display:none;}
+  
+  @media(max-width:980px){
+    .wrap{grid-template-columns:1fr;}
+    .previewCard{position:relative;top:0;}
+  }
+  
+  @media(max-width:720px){
+    .formGrid{grid-template-columns:1fr;}
+    .wrap{padding-inline:14px;}
+    nav{padding-inline:14px;}
+    
+    .menu-toggle{
+      display:flex; 
+      align-items:center; 
+      justify-content:center;
+      z-index: 101;
+    }
+    
+    .nav-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: rgba(11,15,26,0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 14px;
+      gap: 24px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    
+    .nav-menu.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      align-items: flex-start;
+    }
+    
+    .nav-links a {
+      font-size: 1.1rem;
+      width: 100%;
+      padding: 8px 0;
+    }
+    
+    .nav-cta {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 12px;
+    }
+    
+    .nav-cta .btn {
+      width: 100%;
+      text-align: center;
+      padding: 12px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="grain"></div>
+
+
+<nav>
+  <div class="brand"><span class="dot"></span>GroupScan</div>
+  
+  <div class="nav-menu" id="navMenu">
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="Categories.html">Categories</a>
+      <a href="Submit-group.html" class="active">Submit Group</a>
+      <a href="blog.html">Blog</a>
+      <a href="about.html">About</a>
+    </div>
+    <div class="nav-cta">
+      <a href="login.html" class="btn">Log in</a>
+      <a href="register.html" class="btn btn-solid">Join Free</a>
+    </div>
+  </div>
+  
+  <button class="menu-toggle" id="mobileMenuBtn" aria-label="Toggle Menu">
+    <svg class="icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+    <svg class="icon-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+</nav>
+
+
+<div class="page-head">
+  <div class="eyebrow">➕ Submit a group</div>
+  <h1>Share a group for review</h1>
+  <p>Fill in the details carefully. Your submission will be saved as pending and reviewed by the admin dashboard before it appears publicly.</p>
+</div>
+
+
+<div class="wrap">
+  <section class="panel heroMain">
+    <h2 class="section-title">Group details</h2>
+    <p class="sub">
+      Add all the details from your module list, including country, state, city, invite link, admin contact, rules, tags, screenshots, and content flags.
+    </p>
+
+
+    <form id="submitForm" style="margin-top:20px;">
+      <div class="formGrid">
+        <div class="field">
+          <label>Group Name *</label>
+          <input id="groupName" required placeholder="e.g. Chennai Tech Circle">
+        </div>
+        <div class="field">
+          <label>Category *</label>
+          <select id="category" required></select>
+        </div>
+
+
+        <div class="field">
+          <label>Language</label>
+          <input id="language" placeholder="e.g. Tamil, English">
+        </div>
+        <div class="field">
+          <label>Country *</label>
+          <input id="country" required placeholder="e.g. India">
+        </div>
+
+
+        <div class="field">
+          <label>State</label>
+          <input id="state" placeholder="e.g. Tamil Nadu">
+        </div>
+        <div class="field">
+          <label>City</label>
+          <input id="city" placeholder="e.g. Chennai">
+        </div>
+
+
+        <div class="field full">
+          <label>Description *</label>
+          <textarea id="description" required placeholder="What is this group for?"></textarea>
+        </div>
+
+
+        <div class="field full">
+          <label>Invite Link *</label>
+          <input id="inviteLink" required placeholder="https://chat.whatsapp.com/... or https://t.me/...">
+        </div>
+
+
+        <div class="field">
+          <label>Group Image URL</label>
+          <input id="groupImage" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label>Group Emoji</label>
+          <input id="emoji" placeholder="💻">
+        </div>
+
+
+        <div class="field full">
+          <label>Rules</label>
+          <textarea id="rules" placeholder="Basic group rules and safety guidelines"></textarea>
+        </div>
+
+
+        <div class="field">
+          <label>Admin Name</label>
+          <input id="adminName" placeholder="Group owner name">
+        </div>
+        <div class="field">
+          <label>Admin Contact</label>
+          <input id="adminContact" placeholder="Phone / email / WhatsApp">
+        </div>
+
+
+        <div class="field">
+          <label>Tags</label>
+          <input id="tags" placeholder="jobs, tech, chennai">
+        </div>
+        <div class="field">
+          <label>Approx. Members</label>
+          <input id="maxMembers" type="number" placeholder="e.g. 1000">
+        </div>
+
+
+        <div class="field full">
+          <label>Screenshots URLs</label>
+          <textarea id="screenshots" placeholder="Paste one URL per line"></textarea>
+        </div>
+
+
+        <div class="switchRow full">
+          <div class="switchText">
+            <b>Adult content?</b>
+            <span>Mark if the group contains adult material.</span>
+          </div>
+          <div class="toggle" id="adultToggle"></div>
+        </div>
+
+
+        <div class="switchRow full">
+          <div class="switchText">
+            <b>Spam allowed?</b>
+            <span>Mark if the group is allowed for promotions/spam.</span>
+          </div>
+          <div class="toggle" id="spamToggle"></div>
+        </div>
+
+
+        <div class="switchRow full">
+          <div class="switchText">
+            <b>Accept rules</b>
+            <span>I confirm the information is correct and can be reviewed.</span>
+          </div>
+          <div class="toggle" id="acceptToggle"></div>
+        </div>
+      </div>
+
+
+      <div class="actions">
+        <button type="submit" class="btn btn-solid btn-wide">Submit Group</button>
+        <button type="button" class="btn btn-wide" onclick="clearForm()">Clear</button>
+      </div>
+      <div class="note">
+        Submitted groups are saved with status <b>pending</b> in <span class="mono">wcd_groups</span> so the admin dashboard can approve them later.
+      </div>
+    </form>
+  </section>
+
+
+  <aside class="panel preview">
+    <div class="previewCard" id="previewCard">
+      <div class="previewTop">
+        <div class="avatar" id="pvEmoji">🔰</div>
+        <div>
+          <div class="title" id="pvName">Preview Group Name</div>
+          <div class="meta" id="pvMeta">Category · City, Country</div>
+        </div>
+        <span class="pill" style="margin-left:auto;background:var(--caution-dim);color:var(--caution);border-color:rgba(255,178,56,.22);">Pending</span>
+      </div>
+      <div class="desc" id="pvDesc">Your group description will appear here as you type.</div>
+      <div class="miniInfo">
+        <span class="pill" id="pvLang">Language</span>
+        <span class="pill" id="pvMembers">0 members</span>
+        <span class="pill" id="pvFlags">Safe</span>
+        <span class="pill" id="pvPlatform">🌐 Visit Website</span>
+      </div>
+      <div class="note" style="margin-top:14px;">
+        This preview is just for the submitter. The public directory will only show approved groups after admin review.
+      </div>
+    </div>
+  </aside>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+const DEFAULT_CATEGORIES = [
+  {emo:"📱",name:"Social Media"},{emo:"🎮",name:"Gaming"},{emo:"💻",name:"Technology"},
+  {emo:"📚",name:"Education"},{emo:"💼",name:"Jobs"},{emo:"❤️",name:"Friendship"},
+  {emo:"💕",name:"Dating"},{emo:"🛍",name:"Deals & Promotions"},{emo:"🛒",name:"Shopping"},
+  {emo:"🎬",name:"Entertainment"},{emo:"🎵",name:"Music"},{emo:"📷",name:"Photography"},
+  {emo:"✈",name:"Travel"},{emo:"🍔",name:"Food"},{emo:"🏠",name:"Local Community"},
+  {emo:"🏢",name:"Business"},{emo:"🎯",name:"Startups"},{emo:"💰",name:"Finance"},
+  {emo:"🏥",name:"Health"},{emo:"🐶",name:"Pets"},{emo:"😂",name:"Memes"},
+  {emo:"🤖",name:"AI"},{emo:"🌐",name:"Others"},
+  /* ---- Platform / redirect categories: a group placed here always opens straight
+     to the matching site instead of a generic invite link ---- */
+  {emo:"📸",name:"Instagram"},{emo:"📨",name:"Telegram"},
+  {emo:"📰",name:"News Website"},{emo:"📝",name:"Blog Website"},
+  {emo:"🛒",name:"E-commerce Website"},{emo:"🏛",name:"Government Website"},
+  {emo:"🎓",name:"Education Website"},{emo:"💬",name:"Forum Website"},
+  {emo:"🎥",name:"Streaming Website"},{emo:"🧰",name:"Tool / App Website"},
+  {emo:"📁",name:"Portfolio Website"},{emo:"🌐",name:"Other Website"}
+];
+let flags = {adult:false, spam:false, accept:false};
+
+/* ================= PLATFORM AUTO-DETECT =================
+   Same logic as categories.html — reads the invite link and works out which
+   platform it points to, so the visitor's Join button lands them straight on
+   Telegram / Instagram / the target website, whatever category was picked. */
+function detectPlatform(link){
+  if(!link) return {label:'Visit Website', icon:'🌐'};
+  let host = '';
+  try{ host = new URL(link.trim()).hostname.toLowerCase().replace(/^www\./,''); }
+  catch(e){ host = link.toLowerCase(); }
+  if(host.includes('t.me') || host.includes('telegram.me') || host.includes('telegram.org'))
+    return {label:'Open in Telegram', icon:'📨'};
+  if(host.includes('instagram.com'))
+    return {label:'Open in Instagram', icon:'📸'};
+  if(host.includes('wa.me') || host.includes('whatsapp.com'))
+    return {label:'Open in WhatsApp', icon:'🟢'};
+  if(host.includes('discord.gg') || host.includes('discord.com'))
+    return {label:'Open in Discord', icon:'🎮'};
+  if(host.includes('youtube.com') || host.includes('youtu.be'))
+    return {label:'Open on YouTube', icon:'▶️'};
+  if(host.includes('facebook.com') || host.includes('fb.com'))
+    return {label:'Open on Facebook', icon:'📘'};
+  if(host.includes('twitter.com') || host.includes('x.com'))
+    return {label:'Open on X', icon:'✖️'};
+  return {label:'Visit Website', icon:'🌐'};
+}
+
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+
+function seedCategories(){
+  if(!localStorage.getItem('wcd_categories')) localStorage.setItem('wcd_categories', JSON.stringify(DEFAULT_CATEGORIES));
+}
+
+
+function getCategories(){
+  return JSON.parse(localStorage.getItem('wcd_categories') || '[]');
+}
+
+
+function initCategorySelect(){
+  const sel = document.getElementById('category');
+  const cats = getCategories();
+  sel.innerHTML = '<option value="">Select category</option>' + cats.map(c=>`<option value="${c.name}">${c.emo} ${c.name}</option>`).join('');
+}
+
+
+// Toggle switches
+function setupToggles(){
+
+  ["adult","spam","accept"].forEach(type=>{
+
+    const el=document.getElementById(type+"Toggle");
+
+    el.onclick=function(e){
+
+      e.stopPropagation();
+
+      flags[type]=!flags[type];
+
+      this.classList.toggle("on",flags[type]);
+
+      updatePreview();
+
+    };
+
+  });
+
+}
+
+function updatePreview(){
+  const name = document.getElementById('groupName').value || 'Preview Group Name';
+  const cat = document.getElementById('category').value || 'Category';
+  const country = document.getElementById('country').value || 'Country';
+  const city = document.getElementById('city').value || 'City';
+  const desc = document.getElementById('description').value || 'Your group description will appear here as you type.';
+  const lang = document.getElementById('language').value || 'Language';
+  const members = document.getElementById('maxMembers').value || '0';
+  const emoji = document.getElementById('emoji').value || '🔰';
+  const inviteLink = document.getElementById('inviteLink').value;
+
+
+  document.getElementById('pvName').textContent = name;
+  document.getElementById('pvMeta').textContent = `${cat} · ${city ? city+', ' : ''}${country}`;
+  document.getElementById('pvDesc').textContent = desc;
+  document.getElementById('pvLang').textContent = lang;
+  document.getElementById('pvMembers').textContent = `${members} members`;
+  document.getElementById('pvEmoji').textContent = emoji;
+
+  const platform = detectPlatform(inviteLink);
+  document.getElementById('pvPlatform').textContent = `${platform.icon} ${platform.label}`;
+
+
+  const flagText = flags.adult ? 'Adult' : flags.spam ? 'Spam' : 'Safe';
+  document.getElementById('pvFlags').textContent = flags.accept ? flagText : 'Please accept rules';
+}
+
+
+function clearForm(){
+  document.getElementById('submitForm').reset();
+  flags = {adult:false, spam:false, accept:false};
+  ['adultToggle','spamToggle','acceptToggle'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  updatePreview();
+}
+
+
+function readGroups(){
+  if(!localStorage.getItem('wcd_groups')) localStorage.setItem('wcd_groups', JSON.stringify([]));
+  return JSON.parse(localStorage.getItem('wcd_groups') || '[]');
+}
+
+
+function saveGroups(groups){
+  localStorage.setItem('wcd_groups', JSON.stringify(groups));
+}
+
+
+document.querySelectorAll('input, textarea, select').forEach(el=>{
+  el.addEventListener('input', updatePreview);
+  el.addEventListener('change', updatePreview);
+});
+
+
+document.getElementById('submitForm').addEventListener('submit', function(e){
+  e.preventDefault();
+
+
+  if(!flags.accept){
+    toast('Please accept the rules first');
+    return;
+  }
+
+
+  const name = document.getElementById('groupName').value.trim();
+  const cat = document.getElementById('category').value.trim();
+  const language = document.getElementById('language').value.trim();
+  const country = document.getElementById('country').value.trim();
+  const state = document.getElementById('state').value.trim();
+  const city = document.getElementById('city').value.trim();
+  const desc = document.getElementById('description').value.trim();
+  const inviteLink = document.getElementById('inviteLink').value.trim();
+  const groupImage = document.getElementById('groupImage').value.trim();
+  const emoji = document.getElementById('emoji').value.trim() || '🔰';
+  const rules = document.getElementById('rules').value.trim();
+  const adminName = document.getElementById('adminName').value.trim();
+  const adminContact = document.getElementById('adminContact').value.trim();
+  const tags = document.getElementById('tags').value.trim();
+  const membersNum = Number(document.getElementById('maxMembers').value) || 0;
+  const screenshots = document.getElementById('screenshots').value.split('\n').map(s=>s.trim()).filter(Boolean);
+
+
+  if(!name || !cat || !country || !desc || !inviteLink){
+    toast('Fill all required fields');
+    return;
+  }
+
+
+  const groups = readGroups();
+  groups.unshift({
+    id: Date.now(),
+    name,
+    cat,
+    language,
+    country,
+    state,
+    city,
+    desc,
+    inviteLink,
+    groupImage,
+    emo: emoji,
+    rules,
+    adminName,
+    adminContact,
+    tags: tags.split(',').map(t=>t.trim()).filter(Boolean),
+    adultContent: flags.adult,
+    spamAllowed: flags.spam,
+    Acceptrules: flags.accept,
+    membersNum,
+    screenshots,
+    status: 'pending',
+    rating: 0,
+    reviews: 0,
+    submittedBy: JSON.parse(localStorage.getItem('wcd_session') || 'null')?.email || 'guest',
+    createdAt: new Date().toISOString().slice(0,10),
+    verifiedAt: null
+  });
+
+
+  saveGroups(groups);
+  toast('Group submitted successfully');
+  clearForm();
+  setTimeout(()=>window.location.href='index.html', 900);
+});
+
+
+seedCategories();
+initCategorySelect();
+setupToggles();
+updatePreview();
+
+// Navbar Toggle Logic
+document.addEventListener('DOMContentLoaded', () => {
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  const navMenu = document.getElementById('navMenu');
+  const iconMenu = menuBtn.querySelector('.icon-menu');
+  const iconClose = menuBtn.querySelector('.icon-close');
+  const navLinks = navMenu.querySelectorAll('a');
+
+  function toggleMenu() {
+    const isOpen = navMenu.classList.contains('active');
+    if (isOpen) {
+      navMenu.classList.remove('active');
+      document.body.classList.remove('menu-open');
+      iconMenu.style.display = 'block';
+      iconClose.style.display = 'none';
+    } else {
+      navMenu.classList.add('active');
+      document.body.classList.add('menu-open');
+      iconMenu.style.display = 'none';
+      iconClose.style.display = 'block';
+    }
+  }
+
+  menuBtn.addEventListener('click', toggleMenu);
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      if (navMenu.classList.contains('active')) {
+        toggleMenu();
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

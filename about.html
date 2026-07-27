@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us — GroupScan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<!-- Using FontAwesome via CDN for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{
+    --bg:#0B0F1A; --bg-grad1:#0F172A; --bg-grad2:#111827;
+    --surface:#131A2B; --surface-2:#1B2438; --surface-glass:rgba(19, 26, 43, 0.6);
+    --border:#262F47;
+    --text:#EDF1FA; --text-muted:#8D96B3;
+    --verified:#22D3A6; --verified-dim:rgba(34,211,166,.12);
+    --caution:#FFB238; 
+    --danger:#FF4D5E; 
+    --violet:#7C6CFF; --violet-dim:rgba(124,108,255,.12);
+    --radius:16px;
+  }
+  
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth; cursor:none; /* Custom cursor */}
+  body{
+    background:linear-gradient(135deg, var(--bg-grad1), var(--bg-grad2), var(--bg)); 
+    color:var(--text); font-family:'Inter',sans-serif;
+    line-height:1.6; overflow-x:hidden;
+  }
+  h1,h2,h3,h4,.brand{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--verified);color:#04150F;}
+
+  /* --- Custom Cursor --- */
+  .cursor-dot,
+  .cursor-outline {
+    position: fixed;
+    top: 0; left: 0; transform: translate(-50%, -50%);
+    border-radius: 50%; z-index: 9999; pointer-events: none;
+  }
+  .cursor-dot { width: 8px; height: 8px; background-color: var(--verified); }
+  .cursor-outline {
+    width: 40px; height: 40px; border: 1px solid var(--verified);
+    transition: width 0.2s, height 0.2s, background-color 0.2s;
+    box-shadow: 0 0 15px var(--verified-dim);
+  }
+
+  /* --- Background Effects --- */
+  .bg-glow{
+    position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(circle at 15% 30%, rgba(34,211,166,.08), transparent 40%),
+      radial-gradient(circle at 85% 70%, rgba(124,108,255,.08), transparent 40%);
+  }
+  .grain{position:fixed;inset:0;z-index:-1;opacity:.04;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  /* --- Navbar --- */
+  nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 6vw; background:rgba(11,15,26,.8);
+    backdrop-filter:blur(14px); border-bottom:1px solid var(--border);
+  }
+  .brand{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:8px;letter-spacing:-.02em; cursor:pointer;}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--verified);box-shadow:0 0 12px var(--verified);}
+  
+  .hamburger{display:none; flex-direction:column; gap:5px; cursor:pointer; z-index:101;}
+  .hamburger span{display:block; width:24px; height:2px; background:var(--text); transition:all 0.3s ease; border-radius:2px;}
+  .hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .hamburger.active span:nth-child(2){opacity:0;}
+  .hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+  .nav-links{display:flex;gap:28px;align-items:center;font-size:.92rem;color:var(--text-muted);}
+  .nav-links a:hover{color:var(--text);}
+  .nav-links a.active{color:var(--verified);}
+  
+  /* --- Sections --- */
+  section{padding:80px 6vw; max-width:1200px; margin:0 auto; position:relative;}
+  .section-title{text-align:center; font-size:2.5rem; margin-bottom:10px; color:var(--text);}
+  .section-subtitle{text-align:center; color:var(--text-muted); margin-bottom:50px; font-size:1.1rem;}
+  
+  /* --- Hero Section --- */
+  .hero{
+    display:flex; align-items:center; justify-content:space-between; gap:40px; min-height:70vh;
+  }
+  .hero-content{flex:1; animation:fadeRight 1s ease;}
+  .hero h1{font-size:clamp(2.5rem, 5vw, 4rem); line-height:1.1; margin-bottom:20px;}
+  .hero h1 span{color:var(--verified); text-shadow:0 0 20px var(--verified-dim);}
+  .hero p{font-size:1.1rem; color:var(--text-muted); margin-bottom:30px; max-width:500px;}
+  .hero-visual{
+    flex:1; position:relative; display:flex; justify-content:center; align-items:center;
+    animation:fadeLeft 1s ease;
+  }
+  .shield-icon{font-size:8rem; color:var(--verified); filter:drop-shadow(0 0 30px var(--verified)); animation:float 4s ease-in-out infinite;}
+  .floating-icon{position:absolute; font-size:2.5rem; background:var(--surface); padding:15px; border-radius:50%; border:1px solid var(--border); box-shadow:0 10px 20px rgba(0,0,0,0.5);}
+  .fi-wa{top:10%; left:10%; color:#25D366; animation:float 3s ease-in-out infinite 0.5s;}
+  .fi-tg{bottom:10%; right:10%; color:#0088cc; animation:float 3.5s ease-in-out infinite 1s;}
+  .fi-dc{bottom:20%; left:20%; color:#5865F2; animation:float 4s ease-in-out infinite 1.5s;}
+
+  @keyframes float{0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);}}
+  @keyframes fadeRight{from{opacity:0; transform:translateX(-30px);}to{opacity:1; transform:translateX(0);}}
+  @keyframes fadeLeft{from{opacity:0; transform:translateX(30px);}to{opacity:1; transform:translateX(0);}}
+
+  /* --- Glassmorphism Cards Grid --- */
+  .glass-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:24px;
+  }
+  .glass-card{
+    background:var(--surface-glass); backdrop-filter:blur(10px);
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:30px; transition:all 0.3s; position:relative; overflow:hidden;
+  }
+  .glass-card:hover{
+    transform:translateY(-10px); border-color:var(--verified);
+    box-shadow:0 15px 30px var(--verified-dim);
+  }
+  .glass-card i{font-size:2rem; margin-bottom:15px; color:var(--violet);}
+  .glass-card:hover i{color:var(--verified);}
+  .glass-card h3{font-size:1.2rem; margin-bottom:10px;}
+  .glass-card p{font-size:0.9rem; color:var(--text-muted);}
+
+  /* --- Animated Counters --- */
+  .stats-container{
+    display:flex; justify-content:space-around; flex-wrap:wrap; gap:30px;
+    background:var(--surface); padding:40px; border-radius:var(--radius); border:1px solid var(--border);
+    margin:60px 0;
+  }
+  .stat-item{text-align:center;}
+  .stat-num{font-size:3rem; font-weight:700; color:var(--verified); font-family:'JetBrains Mono'; margin-bottom:5px;}
+  .stat-label{font-size:1rem; color:var(--text-muted); font-weight:500;}
+
+  /* --- Meet The Developer Section --- */
+  .dev-section{text-align:center; padding-bottom:100px;}
+  
+  /* Typing Animation */
+  .typewriter-container{display:inline-block; margin-bottom:30px;}
+  .typewriter{
+    overflow:hidden; border-right:0.15em solid var(--verified); white-space:nowrap;
+    margin:0 auto; font-family:'JetBrains Mono', monospace; font-size:1.2rem; color:var(--verified);
+    animation: typing 3s steps(30, end), blink-caret 0.75s step-end infinite;
+  }
+  @keyframes typing{from{width:0} to{width:100%}}
+  @keyframes blink-caret{from,to{border-color:transparent} 50%{border-color:var(--verified)}}
+
+  /* Developer Card */
+  .dev-card-wrapper{
+    display:inline-block; position:relative; cursor:pointer;
+    perspective:1000px;
+  }
+  .dev-card{
+    background:var(--surface-glass); backdrop-filter:blur(15px);
+    border:1px solid var(--border); border-radius:24px; padding:40px;
+    width:350px; text-align:center; transition:all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow:0 20px 50px rgba(0,0,0,0.5); position:relative; overflow:hidden;
+  }
+  .dev-card:hover{
+    transform:translateY(-15px) scale(1.02) rotateX(5deg); 
+    border-color:var(--verified); box-shadow:0 30px 60px rgba(34,211,166,0.2);
+  }
+  
+  /* Avatar + Rotating Border */
+  .dev-avatar-container{
+    width:120px; height:120px; margin:0 auto 20px; position:relative;
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+  .dev-avatar-container::before{
+    content:''; position:absolute; inset:-4px; border-radius:50%;
+    background:conic-gradient(var(--verified), var(--violet), var(--danger), var(--verified));
+    animation:spin 3s linear infinite; z-index:0;
+  }
+  .dev-avatar-container::after{
+    content:''; position:absolute; inset:2px; background:var(--surface); border-radius:50%; z-index:1;
+  }
+  .dev-avatar{
+    width:110px; height:110px; border-radius:50%; object-fit:cover; position:relative; z-index:2;
+    transition:transform 0.5s; border:2px solid transparent;
+  }
+  .dev-card:hover .dev-avatar{transform:scale(1.1);}
+  @keyframes spin{ 100%{transform:rotate(360deg);} }
+
+  .dev-card h2{font-size:1.8rem; margin-bottom:5px; color:var(--text);}
+  .dev-card .role{color:var(--verified); font-weight:600; margin-bottom:15px; font-size:1rem;}
+  .dev-card .tech{font-size:0.85rem; color:var(--text-muted); margin-bottom:25px; word-spacing:5px;}
+  
+  /* Buttons */
+  .social-buttons{display:flex; justify-content:center; gap:10px; flex-wrap:wrap;}
+  .s-btn{
+    width:40px; height:40px; border-radius:50%; background:var(--surface-2); display:flex;
+    align-items:center; justify-content:center; color:var(--text); transition:0.3s;
+    border:1px solid var(--border);
+  }
+  .s-btn:hover{background:var(--verified); color:#000; transform:translateY(-5px); box-shadow:0 10px 20px var(--verified-dim);}
+
+  /* Click Text */
+  .click-text{
+    margin-top:20px; font-size:0.8rem; color:var(--violet); font-family:'JetBrains Mono';
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:0.5;} 50%{opacity:1;}}
+
+  /* --- Skills Section --- */
+  .skills-wrapper{max-width:600px; margin:0 auto; text-align:left;}
+  .skill-box{margin-bottom:20px;}
+  .skill-info{display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem; font-weight:600;}
+  .skill-bar{width:100%; height:8px; background:var(--surface-2); border-radius:10px; overflow:hidden;}
+  .skill-fill{height:100%; background:linear-gradient(90deg, var(--violet), var(--verified)); width:0%; transition:width 1.5s ease-out; border-radius:10px;}
+
+  /* --- Quote --- */
+  .quote-box{
+    text-align:center; padding:40px; background:var(--surface-2); border-radius:var(--radius);
+    margin:60px auto; max-width:800px; border-left:4px solid var(--verified);
+  }
+  .quote-box p{font-size:1.3rem; font-style:italic; margin-bottom:15px;}
+  .quote-box span{color:var(--verified); font-weight:600;}
+
+  /* --- Fullscreen Modal --- */
+  .modal-overlay{
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(11, 15, 26, 0.85); backdrop-filter:blur(20px);
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999; opacity:0; pointer-events:none; transition:opacity 0.4s ease;
+  }
+  .modal-overlay.active{opacity:1; pointer-events:all;}
+  .modal-content{
+    background:var(--surface); border:1px solid var(--verified); border-radius:24px;
+    padding:50px; text-align:center; max-width:500px; width:90%;
+    transform:translateY(50px) scale(0.9); transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow:0 0 50px rgba(34,211,166,0.2); position:relative;
+  }
+  .modal-overlay.active .modal-content{transform:translateY(0) scale(1);}
+  
+  .close-btn{
+    position:absolute; top:20px; right:20px; font-size:1.5rem; color:var(--text-muted);
+    cursor:pointer; transition:0.3s; background:none; border:none;
+  }
+  .close-btn:hover{color:var(--danger); transform:rotate(90deg);}
+  
+  .modal-img{width:150px; height:150px; border-radius:50%; object-fit:cover; border:4px solid var(--verified); margin-bottom:20px; box-shadow:0 0 30px var(--verified-dim);}
+  .modal-title{font-size:2.2rem; margin-bottom:5px;}
+  .modal-role{color:var(--violet); font-size:1.1rem; margin-bottom:20px;}
+  .modal-text{color:var(--text-muted); font-size:0.95rem; margin-bottom:30px; line-height:1.6;}
+  .thank-you{font-size:1.2rem; color:var(--verified); font-family:'Space Grotesk'; font-weight:700; margin-top:20px;}
+
+  /* --- Confetti Container --- */
+  #confetti-container{
+    position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10000;
+  }
+  .confetti{
+    position:absolute; width:10px; height:10px; opacity:0;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{
+    0%{opacity:1; transform:translateY(-100px) rotate(0deg);}
+    100%{opacity:0; transform:translateY(100vh) rotate(720deg);}
+  }
+
+  /* --- Footer --- */
+  footer{
+    padding:40px 6vw; text-align:center; border-top:1px solid var(--border);
+    background:rgba(11,15,26,.9); margin-top:50px;
+  }
+  footer p{color:var(--text-muted); font-size:0.9rem; margin:5px 0;}
+  footer span{color:var(--verified); font-weight:600;}
+
+  @media(max-width: 860px){
+    .hero{flex-direction:column; text-align:center;}
+    
+    .hamburger{display:flex;}
+    .nav-links{
+      position:absolute; top:100%; left:0; width:100%; height:100vh;
+      background:rgba(11,15,26,.95); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      flex-direction:column; align-items:center; padding-top:10vh; gap:30px;
+      opacity:0; visibility:hidden; transform:translateY(-20px);
+      transition:opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+      border-top:1px solid var(--border);
+    }
+    .nav-links.active{opacity:1; visibility:visible; transform:translateY(0);}
+    .nav-links a{font-size:1.25rem; font-weight:500; width:100%; text-align:center; padding:10px 0;}
+    
+    html{cursor:auto;} /* Disable custom cursor on mobile */
+    .cursor-dot, .cursor-outline{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="cursor-outline" id="cursor-outline"></div>
+
+<div class="bg-glow"></div>
+<div class="grain"></div>
+<div id="confetti-container"></div>
+
+<!-- Navbar -->
+<nav>
+  <div class="brand"><span class="dot"></span>GroupScan</div>
+  <div class="hamburger" id="hamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  <div class="nav-links" id="nav-links">
+    <a href="index.html">Home</a>
+    <a href="Categories.html">Categories</a>
+    <a href="Submitgroup.html">Submit Group</a>
+    <a href="about.html" class="active">About</a>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h4 style="color:var(--violet); letter-spacing:2px; margin-bottom:10px; text-transform:uppercase;">About GroupScan</h4>
+    <h1>Discover Verified <br><span>Communities</span> Safely.</h1>
+    <p>Helping thousands of people find trusted WhatsApp, Telegram, and Discord groups while staying completely safe from online scams.</p>
+  </div>
+  <div class="hero-visual">
+    <i class="fa-solid fa-shield-halved shield-icon"></i>
+    <i class="fa-brands fa-whatsapp floating-icon fi-wa"></i>
+    <i class="fa-brands fa-telegram floating-icon fi-tg"></i>
+    <i class="fa-brands fa-discord floating-icon fi-dc"></i>
+  </div>
+</section>
+
+<!-- Mission Section -->
+<section>
+  <div class="section-title">Our Mission</div>
+  <p class="section-subtitle">Every day thousands of people join fake groups. We are here to stop it.</p>
+  
+  <div class="glass-grid">
+    <div class="glass-card">
+      <i class="fa-solid fa-user-secret"></i>
+      <h3>Scam Detection</h3>
+      <p>Advanced algorithms and admin reviews to flag and block scam communities instantly.</p>
+    </div>
+    <div class="glass-card">
+      <i class="fa-solid fa-circle-check" style="color:var(--verified);"></i>
+      <h3>Verified Communities</h3>
+      <p>Only the best and trusted groups get our official green verification badge.</p>
+    </div>
+    <div class="glass-card">
+      <i class="fa-solid fa-users"></i>
+      <h3>Trusted Members</h3>
+      <p>A growing community of real users sharing honest reviews and ratings.</p>
+    </div>
+    <div class="glass-card">
+      <i class="fa-solid fa-bolt"></i>
+      <h3>Fast Search</h3>
+      <p>Find the exact group you are looking for in milliseconds with our smart filters.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Animated Counters Section -->
+<section>
+  <div class="section-title">Why GroupScan?</div>
+  <div class="stats-container" id="stats">
+    <div class="stat-item">
+      <div class="stat-num counter" data-target="12480">0</div>
+      <div class="stat-label">Verified Groups</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num counter" data-target="8000">0</div>
+      <div class="stat-label">Active Users</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span class="counter" data-target="96">0</span>%</div>
+      <div class="stat-label">Positive Rating</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num counter" data-target="500">0</div>
+      <div class="stat-label">Scams Reported</div>
+    </div>
+  </div>
+</section>
+
+<!-- Technologies & Features -->
+<section>
+  <div class="section-title">Technologies & Features</div>
+  <div class="glass-grid" style="margin-bottom:40px;">
+    <div class="glass-card"><i class="fa-brands fa-html5" style="color:#E34F26;"></i><h3>HTML5 & CSS3</h3></div>
+    <div class="glass-card"><i class="fa-brands fa-js" style="color:#F7DF1E;"></i><h3>Vanilla JS</h3></div>
+    <div class="glass-card"><i class="fa-solid fa-database" style="color:var(--verified);"></i><h3>JSON & LocalStorage</h3></div>
+    <div class="glass-card"><i class="fa-solid fa-layer-group" style="color:var(--violet);"></i><h3>Glassmorphism UI</h3></div>
+  </div>
+  
+  <div class="quote-box">
+    <p>"Technology is not just about building websites. It's about solving real-world problems."</p>
+    <span>— Smart Anandh</span>
+  </div>
+</section>
+
+<!-- Meet The Developer (The 🔥 Card) -->
+<section class="dev-section">
+  <div class="typewriter-container">
+    <div class="typewriter">Designed By Smart Anandh...</div>
+  </div>
+  <br>
+  
+  <!-- Developer Card -->
+  <div class="dev-card-wrapper" onclick="openModal()">
+    <div class="dev-card">
+      <div class="dev-avatar-container">
+        <!-- Professional Avatar Placeholder -->
+        <img src="D:\Whatsapp Community\WhatsApp Image 2026-01-06 at 2.04.32 AM (1).jpeg" alt="Smart Anandh" class="dev-avatar">
+      </div>
+      <h2>🤓 Smart Anandh</h2>
+      <div class="role">Frontend Developer</div>
+      <div class="tech">HTML • CSS • JavaScript • React • .NET</div>
+      
+      <div class="social-buttons">
+        <div class="s-btn"><i class="fa-solid fa-briefcase"></i></div>
+        <div class="s-btn"><i class="fa-brands fa-github"></i></div>
+        <div class="s-btn"><i class="fa-brands fa-linkedin-in"></i></div>
+        <div class="s-btn"><i class="fa-solid fa-envelope"></i></div>
+      </div>
+      
+      <div class="click-text">👉 Click to view profile</div>
+    </div>
+  </div>
+  
+  <!-- Skills Progress Bars -->
+  <div style="margin-top:60px;">
+    <h3 style="margin-bottom:30px; font-size:1.8rem;">Core Skills</h3>
+    <div class="skills-wrapper" id="skills">
+      <div class="skill-box">
+        <div class="skill-info"><span>HTML / CSS</span><span>95%</span></div>
+        <div class="skill-bar"><div class="skill-fill" data-width="95%"></div></div>
+      </div>
+      <div class="skill-box">
+        <div class="skill-info"><span>JavaScript</span><span>90%</span></div>
+        <div class="skill-bar"><div class="skill-fill" data-width="90%"></div></div>
+      </div>
+      <div class="skill-box">
+        <div class="skill-info"><span>React</span><span>88%</span></div>
+        <div class="skill-bar"><div class="skill-fill" data-width="88%"></div></div>
+      </div>
+      <div class="skill-box">
+        <div class="skill-info"><span>.NET</span><span>80%</span></div>
+        <div class="skill-bar"><div class="skill-fill" data-width="80%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>Made with ❤️ using HTML, CSS, JavaScript</p>
+  <p>Designed & Developed by <span>🤓 Smart Anandh</span></p>
+  <p style="margin-top:15px; font-size:0.8rem;">© 2026 GroupScan. All Rights Reserved. | Tamil Nadu 🇮🇳</p>
+</footer>
+
+<!-- Fullscreen Modal -->
+<div class="modal-overlay" id="devModal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    <img src="D:\Whatsapp Community\Smartanandh.jpeg" class="modal-img" alt="Anandh">
+    <h2 class="modal-title">Smart Anandh</h2>
+    <div class="modal-role">Lead Frontend Developer & Creator</div>
+    <p class="modal-text">As a developer, I wanted to create something useful for everyone. Nowadays fake groups and scam communities are increasing. GroupScan is designed to help users find trusted communities quickly and safely.</p>
+    
+    <div class="social-buttons" style="margin-bottom:20px;">
+      <a href="#" class="s-btn" title="GitHub"><i class="fa-brands fa-github"></i></a>
+      <a href="#" class="s-btn" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+      <a href="#" class="s-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      <a href="#" class="s-btn" title="Email"><i class="fa-solid fa-envelope"></i></a>
+    </div>
+    
+    <div class="thank-you">Thank you for visiting GroupScan ❤️</div>
+  </div>
+</div>
+
+<script>
+  // --- Navbar Toggle Logic ---
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('nav-links');
+  const navItems = navLinks.querySelectorAll('a');
+
+  function toggleMenu() {
+    hamburger.classList.toggle('active');
+    navLinks.classList.toggle('active');
+    if (navLinks.classList.contains('active')) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  hamburger.addEventListener('click', toggleMenu);
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      if (hamburger.classList.contains('active')) {
+        toggleMenu();
+      }
+    });
+  });
+
+  // --- Custom Cursor Logic ---
+  const cursorDot = document.getElementById("cursor-dot");
+  const cursorOutline = document.getElementById("cursor-outline");
+
+  window.addEventListener("mousemove", function (e) {
+    const posX = e.clientX;
+    const posY = e.clientY;
+    
+    cursorDot.style.left = `${posX}px`;
+    cursorDot.style.top = `${posY}px`;
+    
+    // Add slight delay for the outline
+    cursorOutline.animate({
+      left: `${posX}px`,
+      top: `${posY}px`
+    }, { duration: 500, fill: "forwards" });
+  });
+
+  // Expand cursor on interactive elements
+  const links = document.querySelectorAll("a, button, .dev-card-wrapper, .glass-card, .brand, .hamburger");
+  links.forEach(link => {
+    link.addEventListener("mouseenter", () => {
+      cursorOutline.style.transform = "translate(-50%, -50%) scale(1.5)";
+      cursorOutline.style.backgroundColor = "rgba(34,211,166,0.1)";
+    });
+    link.addEventListener("mouseleave", () => {
+      cursorOutline.style.transform = "translate(-50%, -50%) scale(1)";
+      cursorOutline.style.backgroundColor = "transparent";
+    });
+  });
+
+  // --- Modal & Confetti Logic ---
+  const modal = document.getElementById('devModal');
+  
+  function openModal() {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Stop background scrolling
+    fireConfetti();
+  }
+  
+  function closeModal() {
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+
+  // Close modal when clicking outside
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeModal();
+  });
+
+  function fireConfetti() {
+    const container = document.getElementById('confetti-container');
+    container.innerHTML = ''; // Clear previous
+    const colors = ['#22D3A6', '#7C6CFF', '#FF4D5E', '#FFB238', '#FFFFFF'];
+    
+    for (let i = 0; i < 100; i++) {
+      const confetti = document.createElement('div');
+      confetti.classList.add('confetti');
+      
+      // Randomize properties
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+      
+      // Random shapes (square or circle)
+      if(Math.random() > 0.5) confetti.style.borderRadius = '50%';
+      
+      container.appendChild(confetti);
+    }
+    
+    // Remove confetti after animation ends
+    setTimeout(() => {
+      container.innerHTML = '';
+    }, 6000);
+  }
+
+  // --- Intersection Observer for Animations ---
+  const observerOptions = { threshold: 0.2 };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        // Animate Counters
+        if(entry.target.id === 'stats'){
+          const counters = document.querySelectorAll('.counter');
+          counters.forEach(counter => {
+            const updateCount = () => {
+              const target = +counter.getAttribute('data-target');
+              const count = +counter.innerText;
+              const inc = target / 50; // Speed adjustment
+              
+              if(count < target){
+                counter.innerText = Math.ceil(count + inc);
+                setTimeout(updateCount, 40);
+              } else {
+                counter.innerText = target + (target > 100 ? '+' : '');
+              }
+            };
+            updateCount();
+          });
+          observer.unobserve(entry.target);
+        }
+        
+        // Animate Skills
+        if(entry.target.id === 'skills'){
+          const bars = document.querySelectorAll('.skill-fill');
+          bars.forEach(bar => {
+            bar.style.width = bar.getAttribute('data-width');
+          });
+          observer.unobserve(entry.target);
+        }
+      }
+    });
+  }, observerOptions);
+
+  // Start observing
+  document.getElementById('stats') && observer.observe(document.getElementById('stats'));
+  document.getElementById('skills') && observer.observe(document.getElementById('skills'));
+
+</script>
+</body>
+</html>

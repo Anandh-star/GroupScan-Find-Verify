@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GroupScan — Find & Verify Community Groups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================================================
+     PREMIUM SAAS THEME (Linear/Vercel/Framer Inspired)
+     ========================================================================== */
+  :root {
+    --bg: #000000;
+    --bg-accent: #050505;
+    --surface: rgba(255, 255, 255, 0.02);
+    --surface-hover: rgba(255, 255, 255, 0.04);
+    --surface-2: rgba(255, 255, 255, 0.05);
+    
+    --border: rgba(255, 255, 255, 0.08);
+    --border-highlight: rgba(255, 255, 255, 0.15);
+    
+    --text: #F3F4F6;
+    --text-muted: #9CA3AF;
+    --text-dim: #6B7280;
+    
+    --verified: #10B981;
+    --verified-glow: rgba(16, 185, 129, 0.4);
+    --verified-dim: rgba(16, 185, 129, 0.1);
+    
+    --caution: #F59E0B;
+    --caution-dim: rgba(245, 158, 11, 0.1);
+    
+    --danger: #EF4444;
+    --danger-dim: rgba(239, 68, 68, 0.1);
+    
+    --violet: #8B5CF6;
+    --violet-glow: rgba(139, 92, 246, 0.4);
+    --blue: #3B82F6;
+    
+    --radius: 16px;
+    --radius-sm: 10px;
+    
+    /* Rating Bands */
+    --r1: #EF4444; --r1-dim: rgba(239, 68, 68, 0.15);
+    --r2: #F97316; --r2-dim: rgba(249, 115, 22, 0.15);
+    --r3: #F59E0B; --r3-dim: rgba(245, 158, 11, 0.15);
+    --r4: #84CC16; --r4-dim: rgba(132, 204, 22, 0.15);
+    --r5: #10B981; --r5-dim: rgba(16, 185, 129, 0.15);
+
+    --easing: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  html { 
+    scroll-behavior: smooth; 
+    background: var(--bg);
+  }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* Initial Page Load Animation */
+    animation: pageReveal 1.2s var(--easing) forwards;
+  }
+
+  @keyframes pageReveal {
+    0% { opacity: 0; filter: blur(20px); transform: translateY(30px) scale(0.98); }
+    100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+  }
+
+  h1, h2, h3, .brand, .stat-num { font-family: 'Space Grotesk', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--violet); color: #FFF; }
+  
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 5px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-highlight); }
+
+  /* ---------- Ambient Aurora & Noise ---------- */
+  .bg-glow {
+    position: fixed; inset: 0; z-index: -2;
+    background: #000;
+    overflow: hidden;
+  }
+  
+  .bg-glow::before, .bg-glow::after, .bg-glow-3 {
+    content: ''; position: absolute;
+    width: 50vw; height: 50vw;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.12;
+    animation: aurora 25s infinite ease-in-out alternate;
+    will-change: transform;
+  }
+  
+  .bg-glow::before {
+    background: var(--violet);
+    top: -10%; left: -10%;
+  }
+  
+  .bg-glow::after {
+    background: var(--verified);
+    bottom: -10%; right: -10%;
+    animation-delay: -12.5s;
+    animation-duration: 30s;
+  }
+  
+  .bg-glow-3 {
+    background: var(--blue);
+    top: 40%; left: 40%;
+    animation-delay: -5s;
+    animation-duration: 20s;
+  }
+
+  @keyframes aurora {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(5%, 5%) scale(1.1); }
+    100% { transform: translate(-5%, -5%) scale(0.9); }
+  }
+
+  .grain {
+    position: fixed; inset: 0; z-index: -1; 
+    opacity: 0.04; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  /* ---------- Premium Navbar ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 6vw;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  
+  .brand {
+    font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 10px;
+    letter-spacing: -0.04em; color: #FFF;
+    text-shadow: 0 0 20px rgba(255,255,255,0.1);
+  }
+  
+  .brand .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--verified);
+    box-shadow: 0 0 16px var(--verified), 0 0 4px var(--verified);
+    animation: pulseGlow 2s infinite alternate;
+  }
+
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 12px var(--verified-glow), 0 0 4px var(--verified); transform: scale(1); }
+    100% { box-shadow: 0 0 24px var(--verified-glow), 0 0 8px var(--verified); transform: scale(1.1); }
+  }
+
+  .nav-menu {
+    display: contents; /* Keeps desktop layout exactly the same */
+  }
+
+  .nav-links { display: flex; gap: 32px; align-items: center; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
+  
+  .nav-links a {
+    position: relative; transition: color 0.2s ease;
+    padding: 4px 0;
+  }
+  
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--verified), var(--violet));
+    transform: scaleX(0); transform-origin: right; transition: transform 0.4s var(--easing);
+    border-radius: 2px;
+  }
+  
+  .nav-links a:hover { color: #FFF; }
+  .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+
+  .nav-cta { display: flex; gap: 12px; }
+  
+  .btn {
+    padding: 10px 20px; border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; transition: all 0.3s var(--easing); font-family: 'Inter', sans-serif;
+    position: relative; overflow: hidden; z-index: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  
+  .btn-ghost {
+    background: transparent; color: var(--text); border: 1px solid var(--border);
+  }
+  
+  .btn-ghost:hover {
+    border-color: var(--border-highlight); background: var(--surface); color: #FFF;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  
+  .btn-solid {
+    background: #FFF; color: #000; border: none;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 4px 14px rgba(255,255,255,0.15);
+  }
+  
+  .btn-solid:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.2), 0 6px 20px rgba(255,255,255,0.25);
+  }
+
+  .menu-toggle { 
+    display: none; background: none; border: none; color: var(--text); 
+    cursor: pointer; z-index: 1001; padding: 4px;
+    transition: transform 0.3s var(--easing);
+  }
+  
+  .menu-toggle:active { transform: scale(0.9); }
+
+  /* ---------- Premium Scam Ticker ---------- */
+  .ticker-wrap {
+    background: linear-gradient(90deg, #1A0508, #2A080C, #1A0508);
+    border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+    overflow: hidden; white-space: nowrap; position: relative;
+    box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.05);
+  }
+  
+  .ticker-label {
+    position: absolute; left: 0; top: 0; bottom: 0; z-index: 2;
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 24px;
+    background: linear-gradient(90deg, var(--danger) 80%, transparent);
+    color: #FFF; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+    box-shadow: 10px 0 20px rgba(0,0,0,0.5);
+  }
+  
+  .ticker-track {
+    display: inline-flex; padding-left: 220px;
+    animation: tickerScroll 35s linear infinite;
+  }
+  
+  .ticker-track:hover { animation-play-state: paused; }
+  
+  .ticker-track span {
+    display: inline-flex; align-items: center; padding: 10px 34px; font-size: 0.82rem; color: #FCA5A5;
+    position: relative;
+  }
+  
+  .ticker-track span::after {
+    content: '•'; position: absolute; right: 0; color: rgba(239, 68, 68, 0.4);
+  }
+  
+  .ticker-track span b { color: #FFF; font-weight: 600; text-shadow: 0 0 8px rgba(255,255,255,0.2); }
+  
+  @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ---------- Hero Landing Page ---------- */
+  .hero {
+    padding: 120px 6vw 80px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    position: relative;
+  }
+  
+  .hero::before {
+    content: ''; position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+    pointer-events: none; z-index: -1;
+  }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 18px; border: 1px solid var(--border); border-radius: 100px;
+    font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 28px;
+    background: rgba(255,255,255,0.03); backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    animation: fadeDown 0.8s var(--easing) forwards; opacity: 0; transform: translateY(-15px);
+  }
+  
+  .eyebrow span { color: var(--verified); text-shadow: 0 0 10px var(--verified-glow); }
+  
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.8rem); font-weight: 700; letter-spacing: -0.04em;
+    max-width: 900px; line-height: 1.05; color: #FFF;
+    animation: fadeUp 1s var(--easing) 0.1s forwards; opacity: 0; transform: translateY(20px);
+  }
+  
+  .hero h1 .accent {
+    background: linear-gradient(135deg, #10B981, #3B82F6, #8B5CF6);
+    background-size: 200% 200%;
+    background-clip: text; /* standard */
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    color: transparent; /* fallback for non-webkit */
+    animation: gradientShift 5s ease infinite;
+  }
+
+  @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+  .hero p {
+    margin-top: 24px; max-width: 600px; color: var(--text-muted); font-size: 1.15rem;
+    animation: fadeUp 1s var(--easing) 0.2s forwards; opacity: 0; transform: translateY(20px);
+  }
+
+  /* Floating Search Box */
+  .search-box {
+    margin-top: 48px; width: 100%; max-width: 720px;
+    display: flex; align-items: stretch; gap: 0;
+    background: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border); border-radius: 20px;
+    padding: 8px; box-shadow: 0 24px 80px -10px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: fadeUp 1s var(--easing) 0.3s forwards; opacity: 0; transform: translateY(20px);
+  }
+  
+  .search-box:focus-within {
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1), 0 30px 100px -10px rgba(0,0,0,0.9);
+    transform: translateY(-2px) scale(1.01);
+  }
+
+  .search-box select {
+    background: transparent; border: none; color: var(--text); font-family: 'Inter', sans-serif; font-weight: 500;
+    padding: 14px 16px; font-size: 0.9rem; border-right: 1px solid var(--border);
+    outline: none; cursor: pointer; -webkit-appearance: none; appearance: none;
+  }
+  
+  .search-box select option { background: var(--bg-accent); color: #FFF; }
+  
+  .search-box input {
+    flex: 1; background: transparent; border: none; outline: none; color: #FFF;
+    padding: 14px 20px; font-size: 1rem; font-family: 'Inter', sans-serif;
+  }
+  
+  .search-box input::placeholder { color: var(--text-dim); }
+  
+  .search-box button {
+    background: #FFF; color: #000; border: none; border-radius: 14px;
+    padding: 14px 32px; font-weight: 600; font-size: 0.95rem; cursor: pointer;
+    transition: all 0.3s var(--easing); font-family: 'Inter', sans-serif;
+    position: relative; overflow: hidden;
+  }
+  
+  .search-box button:hover {
+    background: var(--verified); color: #FFF;
+    box-shadow: 0 0 20px var(--verified-glow); transform: scale(1.02);
+  }
+
+  .hero-stats {
+    display: flex; gap: 48px; margin-top: 64px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 1s var(--easing) 0.4s forwards; opacity: 0; transform: translateY(20px);
+  }
+  
+  .hero-stats > div {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 16px 24px; border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+    border: 1px solid var(--border); transition: all 0.3s ease;
+  }
+  
+  .hero-stats > div:hover {
+    border-color: var(--border-highlight); transform: translateY(-4px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+  }
+
+  .stat-num {
+    font-size: 2.2rem; font-weight: 700; color: #FFF;
+    text-shadow: 0 0 20px rgba(255,255,255,0.1);
+    background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
+    background-clip: text; /* standard */
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    color: transparent; /* fallback for non-webkit */
+  }
+  
+  .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; letter-spacing: 0.05em; font-weight: 600; text-transform: uppercase; }
+
+  /* ---------- Dynamic Sections & Grid ---------- */
+  .section { padding: 80px 6vw; position: relative; }
+  
+  .section-head {
+    display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 40px;
+    border-bottom: 1px solid var(--border); padding-bottom: 20px; flex-wrap: wrap; gap: 16px;
+  }
+  
+  .section-head .tag {
+    font-size: 0.75rem; color: var(--violet); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; display: block;
+    text-shadow: 0 0 10px var(--violet-glow);
+  }
+  
+  .section-head h2 { font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; color: #FFF; }
+  
+  .see-all {
+    font-size: 0.9rem; color: var(--text-muted); font-weight: 500;
+    transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px;
+  }
+  
+  .see-all:hover { color: #FFF; transform: translateX(4px); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+
+  /* ---------- Premium Glass Cards ---------- */
+  .card {
+    background: rgba(10, 10, 12, 0.4);
+    border: 1px solid var(--border); border-radius: 20px;
+    padding: 24px; position: relative; overflow: hidden;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    transition: all 0.4s var(--easing); cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.02);
+    /* Animation base */
+    opacity: 0; transform: translateY(30px) scale(0.96);
+  }
+  
+  /* Use nth-child for staggered entry based on DOM insertion */
+  .card.in { opacity: 1; transform: translateY(0) scale(1); }
+  .card.in:nth-child(1) { transition-delay: 0.05s; }
+  .card.in:nth-child(2) { transition-delay: 0.1s; }
+  .card.in:nth-child(3) { transition-delay: 0.15s; }
+  .card.in:nth-child(4) { transition-delay: 0.2s; }
+  
+  /* Hover effects */
+  .card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.03), transparent 40%);
+    opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
+  }
+
+  .card:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 24px 48px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+    background: rgba(15, 15, 20, 0.6);
+  }
+  
+  .card:hover::before { opacity: 1; }
+
+  /* Animated Laser Scan */
+  .scan {
+    position: absolute; left: 0; right: 0; top: -100px; height: 100px; z-index: 10;
+    background: linear-gradient(to bottom, transparent, rgba(16, 185, 129, 0.5));
+    border-bottom: 1px solid var(--verified);
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  
+  .card:hover .scan { opacity: 1; animation: laserScan 2s ease-in-out infinite; }
+  @keyframes laserScan { 0% { transform: translateY(-100%); } 100% { transform: translateY(400px); } }
+
+  .card-top { display: flex; gap: 16px; align-items: flex-start; position: relative; z-index: 2; }
+  
+  .avatar {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; background: rgba(255,255,255,0.03); flex-shrink: 0; position: relative;
+    border: 1px solid var(--border); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    transition: transform 0.3s var(--easing);
+  }
+  
+  .card:hover .avatar { transform: scale(1.08) rotate(-5deg); }
+  
+  .avatar::after {
+    content: ''; position: absolute; inset: -1px; border-radius: 15px;
+    background: linear-gradient(135deg, var(--verified), var(--violet));
+    opacity: 0; z-index: -1; transition: opacity 0.3s;
+  }
+  .card:hover .avatar::after { opacity: 0.3; filter: blur(8px); }
+
+  .card-title { font-weight: 600; font-size: 1.1rem; color: #FFF; letter-spacing: -0.01em; }
+  .card-cat { font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; font-weight: 500; }
+  
+  /* Premium Badges */
+  .badge {
+    margin-left: auto; font-size: 0.7rem; font-weight: 700; padding: 6px 12px; border-radius: 100px;
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    border: 1px solid transparent; letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  
+  .badge.verified {
+    background: var(--verified-dim); color: var(--verified); border-color: rgba(16, 185, 129, 0.2);
+    box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.1);
+  }
+  .badge.caution { background: var(--caution-dim); color: var(--caution); border-color: rgba(245, 158, 11, 0.2); }
+  .badge.scam { background: var(--danger-dim); color: var(--danger); border-color: rgba(239, 68, 68, 0.2); animation: pulseDanger 2s infinite; }
+  
+  @keyframes pulseDanger { 0%,100%{box-shadow:0 0 0 0 rgba(239, 68, 68, 0.4)} 50%{box-shadow:0 0 0 6px transparent} }
+  
+  .badge .bdot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
+
+  .card-desc { font-size: 0.9rem; color: var(--text-muted); margin-top: 16px; min-height: 44px; line-height: 1.5; z-index: 2; position: relative; }
+  
+  .card-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+    position: relative; z-index: 2;
+  }
+  
+  .rating-chip {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700; padding: 6px 10px;
+    border-radius: 8px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  
+  .card:hover .rating-chip { background: rgba(255,255,255,0.08); }
+  
+  .rating-chip.r1 { color: var(--r1); text-shadow: 0 0 8px var(--r1-dim); }
+  .rating-chip.r2 { color: var(--r2); text-shadow: 0 0 8px var(--r2-dim); }
+  .rating-chip.r3 { color: var(--r3); text-shadow: 0 0 8px var(--r3-dim); }
+  .rating-chip.r4 { color: var(--r4); text-shadow: 0 0 8px var(--r4-dim); }
+  .rating-chip.r5 { color: var(--r5); text-shadow: 0 0 8px var(--r5-dim); }
+  .rating-chip .rc-reviews { opacity: 0.6; font-weight: 500; font-size: 0.75rem; }
+  
+  .members { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+  
+  .join-btn {
+    margin-top: 20px; width: 100%; padding: 12px; border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid var(--border); color: #FFF; font-weight: 600; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative; z-index: 2; overflow: hidden;
+  }
+  
+  .join-btn::before {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .join-btn:hover:not(:disabled) {
+    background: #FFF; color: #000; border-color: #FFF;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2); transform: translateY(-2px);
+  }
+  
+  .join-btn:hover::before { left: 100%; }
+  
+  .join-btn:disabled { opacity: 0.4; cursor: not-allowed; background: rgba(0,0,0,0.2); }
+
+  /* ---------- Categories ---------- */
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+  
+  .cat-chip {
+    background: rgba(10, 10, 12, 0.4); border: 1px solid var(--border); border-radius: 16px;
+    padding: 24px 16px; text-align: center; cursor: pointer;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    transition: all 0.4s var(--easing); opacity: 0; transform: translateY(20px) scale(0.95);
+  }
+  
+  .cat-chip.in { opacity: 1; transform: translateY(0) scale(1); }
+  
+  .cat-chip:hover {
+    border-color: rgba(139, 92, 246, 0.4); background: rgba(139, 92, 246, 0.05);
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 16px 32px -8px rgba(0,0,0,0.5), 0 0 20px rgba(139, 92, 246, 0.15);
+  }
+  
+  .cat-chip .emo {
+    font-size: 2rem; display: block; margin-bottom: 12px; transition: transform 0.4s var(--easing);
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  }
+  
+  .cat-chip:hover .emo { transform: scale(1.2) translateY(-4px); }
+  .cat-chip .name { font-size: 0.85rem; color: #FFF; font-weight: 600; letter-spacing: -0.01em; }
+
+  /* ---------- Premium Ads ---------- */
+  .ad-strip {
+    display: flex; gap: 24px; overflow-x: auto; padding-bottom: 16px; scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .ad-strip::-webkit-scrollbar { display: none; }
+  
+  .ad-card {
+    min-width: 320px; border-radius: 20px; padding: 28px; position: relative; scroll-snap-align: start;
+    background: linear-gradient(135deg, rgba(25,25,35,0.8), rgba(10,10,12,0.9));
+    border: 1px solid rgba(255,255,255,0.08); overflow: hidden;
+    transition: all 0.4s var(--easing); cursor: pointer;
+  }
+  
+  .ad-card::before {
+    content: ''; position: absolute; inset: 0; background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0 100 L100 0 L100 100 Z" fill="rgba(139,92,246,0.03)"/></svg>') no-repeat center; background-size: cover; z-index: 0;
+  }
+
+  .ad-card:hover { transform: translateY(-4px); border-color: rgba(139, 92, 246, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+  .ad-card * { position: relative; z-index: 1; }
+  
+  .ad-tag { font-size: 0.65rem; letter-spacing: 0.12em; color: var(--violet); text-transform: uppercase; font-weight: 800; background: rgba(139, 92, 246, 0.1); padding: 4px 10px; border-radius: 100px; display: inline-block; }
+  .ad-card h3 { font-size: 1.25rem; margin-top: 14px; color: #FFF; font-weight: 700; letter-spacing: -0.02em; }
+  .ad-card p { font-size: 0.9rem; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
+
+  /* ---------- Minimal Footer ---------- */
+  footer {
+    padding: 80px 6vw 40px; margin-top: 40px;
+    border-top: 1px solid var(--border);
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.02));
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; color: var(--text-muted); font-size: 0.9rem;
+  }
+  
+  footer .fcol h4 { color: #FFF; font-size: 0.95rem; margin-bottom: 20px; font-weight: 600; }
+  footer .fcol a { display: block; padding: 6px 0; color: var(--text-muted); transition: all 0.2s ease; font-weight: 500; }
+  footer .fcol a:hover { color: #FFF; transform: translateX(4px); text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+
+  /* Responsive Design */
+  @media(max-width: 900px) {
+    /* Navigation Responsive Overrides */
+    nav { z-index: 1000; }
+    .brand { z-index: 1001; position: relative; }
+    .menu-toggle { display: block; z-index: 1001; position: relative; }
+    
+    .nav-menu {
+      display: flex;
+      position: fixed;
+      top: 0; left: 0; right: 0; height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(24px) saturate(150%);
+      -webkit-backdrop-filter: blur(24px) saturate(150%);
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 6vw;
+      gap: 40px;
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.4s var(--easing), opacity 0.4s var(--easing);
+      z-index: 999;
+    }
+    
+    .nav-menu.active {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .nav-links { 
+      display: flex;
+      flex-direction: column; 
+      align-items: center;
+      gap: 32px; 
+      font-size: 1.4rem; 
+    }
+    
+    .nav-cta {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 16px;
+    }
+    
+    .nav-cta .btn {
+      width: 100%;
+      text-align: center;
+      padding: 14px;
+      font-size: 1.1rem;
+    }
+
+    /* Retain original responsive logic for everything else */
+    .hero { padding: 80px 6vw 60px; }
+    .hero h1 { font-size: clamp(2.2rem, 8vw, 3rem); }
+    .search-box { flex-direction: column; align-items: stretch; border-radius: 16px; padding: 12px; }
+    .search-box select { border-right: none; border-bottom: 1px solid var(--border); padding: 16px; }
+    .search-box input { padding: 16px; }
+    .search-box button { margin-top: 8px; padding: 16px; font-size: 1rem; }
+    .hero-stats { gap: 24px; margin-top: 40px; }
+    .hero-stats > div { flex: 1 1 40%; }
+    .section { padding: 60px 6vw; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  }
+
+  /* Utility Animations */
+  @keyframes fadeUp { 0%{opacity:0;transform:translateY(20px)} 100%{opacity:1;transform:translateY(0)} }
+  @keyframes fadeDown { 0%{opacity:0;transform:translateY(-20px)} 100%{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+<!-- Ambient Effects -->
+<div class="bg-glow"></div>
+<div class="bg-glow-3"></div>
+<div class="grain"></div>
+
+<nav id="navbar">
+  <div class="brand"><span class="dot"></span>GroupScan</div>
+  <div class="nav-menu" id="navMenu">
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="Categories.html">Categories</a>
+      <a href="Submitgroup.html">Submit Group</a>
+      <a href="blog.html">Blog</a>
+      <a href="about.html">About</a>
+    </div>
+    <div class="nav-cta">
+      <a href="login.html" class="btn btn-ghost">Log in</a>
+      <a href="register.html" class="btn btn-solid">Join Free</a>
+    </div>
+  </div>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+    <svg class="hamburger" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+    <svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+</nav>
+
+<div class="ticker-wrap">
+  <div class="ticker-label">🚩 Live Scam Watch</div>
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<section class="hero">
+  <div class="eyebrow"><span id="heroVerifiedCount">🛡️ 0</span> groups verified this month</div>
+  <h1>Find community groups you can <span class="accent">actually trust.</span></h1>
+  <p>Search WhatsApp, Telegram & Discord groups across every category — checked for scams, rated by real members, and badge-verified before you tap join.</p>
+
+  <div class="search-box">
+    <select id="catFilter">
+      <option value="">All Categories</option>
+      <!-- Options will be populated dynamically -->
+    </select>
+    <input id="searchInput" type="text" placeholder="Search groups — e.g. 'Chennai jobs', 'crypto deals'...">
+    <button onclick="runSearch()">Search</button>
+  </div>
+
+  <div class="hero-stats">
+    <div><div class="stat-num mono" id="statGroupsListed">0</div><div class="stat-label">GROUPS LISTED</div></div>
+    <div><div class="stat-num mono" id="statVerifiedSafe">0%</div><div class="stat-label">VERIFIED SAFE</div></div>
+    <div><div class="stat-num mono" id="statScamsBlocked">0</div><div class="stat-label">SCAMS BLOCKED</div></div>
+    <div><div class="stat-num mono" id="statAvgRating">0★</div><div class="stat-label">AVG RATING</div></div>
+  </div>
+</section>
+
+<section class="section" id="results" style="display:none;">
+  <div class="section-head"><div><span class="tag">Search Results</span><h2 id="resultsHeading">Results</h2></div></div>
+  <div class="grid" id="resultsGrid"></div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div><span class="tag">Hot right now</span><h2>Trending Groups</h2></div>
+    <a class="see-all" href="categories.html?sort=trend">See all →</a>
+  </div>
+  <div class="grid" id="trendingGrid"></div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div><span class="tag">Fresh badge</span><h2>Recently Verified</h2></div>
+    <a class="see-all" href="categories.html?sort=new">See all →</a>
+  </div>
+  <div class="grid" id="verifiedGrid"></div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div><span class="tag">Community favourites</span><h2>Top Rated Groups</h2></div>
+    <a class="see-all" href="categories.html?sort=rating">See all →</a>
+  </div>
+  <div class="grid" id="topRatedGrid"></div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div><span class="tag">Just listed</span><h2>New Groups</h2></div>
+    <a class="see-all" href="categories.html?sort=new">See all →</a>
+  </div>
+  <div class="grid" id="newGrid"></div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div><span class="tag">Biggest communities</span><h2>Most Members</h2></div>
+    <a class="see-all" href="Categories.html?sort=members">See all →</a>
+  </div>
+  <div class="grid" id="mostMembersGrid"></div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div><span class="tag">Browse</span><h2>Categories</h2></div>
+  </div>
+  <div class="cat-grid" id="catGrid"></div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div><span class="tag">Sponsored</span><h2>Featured Ads</h2></div>
+  </div>
+  <div class="ad-strip" id="adStrip"></div>
+</section>
+
+<footer>
+  <div class="fcol">
+    <h4>GroupScan</h4>
+    <p style="max-width:220px; line-height:1.5;">A verified directory for WhatsApp, Telegram & Discord community groups.</p>
+  </div>
+  <div class="fcol">
+    <h4>Explore</h4>
+    <a href="Categories.html">Categories</a>
+    <a href="Submitgroup.html">Submit a Group</a>
+    <a href="blog.html">Safety Blog</a>
+  </div>
+  <div class="fcol">
+    <h4>Account</h4>
+    <a href="login.html">Login</a>
+    <a href="register.html">Register</a>
+    <a href="Profile.html">Profile</a>
+  </div>
+  <div class="fcol">
+    <h4>Company</h4>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</footer>
+
+<script>
+/* ================= LOCAL STORAGE HELPERS ================= */
+// We use the same functions as index/admin to keep things in sync
+function getCategories(){
+  return JSON.parse(localStorage.getItem('wcd_categories') || '[]');
+}
+function getGroups(){ 
+  return JSON.parse(localStorage.getItem('wcd_groups') || '[]'); 
+}
+function getReports(){ return JSON.parse(localStorage.getItem('wcd_reports') || '[]'); }
+function formatMembers(n){ n=Number(n)||0; return n>=1000 ? (n/1000).toFixed(1).replace('.0','')+'K' : String(n); }
+function emptyGridHTML(msg){ return `<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-muted);"><span style="font-size:2rem;display:block;margin-bottom:10px;">🌱</span>${msg}</div>`; }
+
+
+const SCAM_ALERTS_FALLBACK = [
+  "Always verify the green ✅ badge before sharing personal details in any group",
+  "Never pay money or share OTPs inside a WhatsApp/Telegram group, verified or not",
+  "Report suspicious groups so our admin team can review them fast"
+];
+
+const AD_SEED = [
+  {tag:"Sponsored",title:"FITA Academy — React.js Batch",desc:"Live projects, placement support. Enroll this month."},
+  {tag:"Sponsored",title:"SafeChat VPN",desc:"Browse community groups privately & securely."},
+  {tag:"Sponsored",title:"Nova.io Portfolio Builder",desc:"Launch your dev portfolio in a weekend."}
+];
+
+/* Real trend score — no fake 'trend' field needed, computed from actual data */
+function trendScore(g){
+  return (Number(g.membersNum)||0) + (Number(g.reviews)||0)*20 + (Number(g.rating)||0)*50;
+}
+
+/* ================= RATING COLOR BANDS (0-1 / 1-2 / 2-3 / 3-4 / 4-5) — mirrors Admin Dashboard ================= */
+function ratingBand(rating){
+  const r = Number(rating)||0;
+  if(r < 1) return 1;
+  if(r < 2) return 2;
+  if(r < 3) return 3;
+  if(r < 4) return 4;
+  return 5;
+}
+function ratingChip(rating, reviews){
+  const band = ratingBand(rating);
+  const rv = (reviews===null || reviews===undefined) ? '' : ` <span class="rc-reviews">(${reviews})</span>`;
+  return `<span class="rating-chip r${band}">★ ${(Number(rating)||0).toFixed(1)}${rv}</span>`;
+}
+
+/* ================= PLATFORM AUTO-DETECT ================= */
+function detectPlatform(link){
+  if(!link) return {label:'Visit Website', icon:'🌐'};
+  let host = '';
+  try{ host = new URL(link.trim()).hostname.toLowerCase().replace(/^www\./,''); }
+  catch(e){ host = link.toLowerCase(); }
+  if(host.includes('t.me') || host.includes('telegram.me') || host.includes('telegram.org'))
+    return {label:'Open in Telegram', icon:'📨'};
+  if(host.includes('instagram.com'))
+    return {label:'Open in Instagram', icon:'📸'};
+  if(host.includes('wa.me') || host.includes('whatsapp.com'))
+    return {label:'Open in WhatsApp', icon:'🟢'};
+  if(host.includes('discord.gg') || host.includes('discord.com'))
+    return {label:'Open in Discord', icon:'🎮'};
+  if(host.includes('youtube.com') || host.includes('youtu.be'))
+    return {label:'Open on YouTube', icon:'▶️'};
+  if(host.includes('facebook.com') || host.includes('fb.com'))
+    return {label:'Open on Facebook', icon:'📘'};
+  if(host.includes('twitter.com') || host.includes('x.com'))
+    return {label:'Open on X', icon:'✖️'};
+  return {label:'Visit Website', icon:'🌐'};
+}
+
+/* ================= HOME CURATION (set by Admin Dashboard → Home Curation tab) =================
+   Strict mode for the Home page: a section shows ONLY groups Admin has pinned there, in the exact
+   drag order set in the dashboard. A newly approved group never appears here on its own — Admin
+   has to pin it in Home Curation first. (The full listing on Categories.html still shows every
+   approved group; only these 4 Home sections are curated-only.) */
+function curatedOnly(groups, modeKey){
+  return groups
+    .filter(g=> g.curationOrder && g.curationOrder[modeKey]!==null && g.curationOrder[modeKey]!==undefined)
+    .sort((a,b)=> a.curationOrder[modeKey]-b.curationOrder[modeKey]);
+}
+
+/* ================= RENDER HELPERS ================= */
+function badgeHTML(status){
+  const map = {
+    verified:{cls:'verified',label:'Verified'},
+    caution:{cls:'caution',label:'Caution'},
+    scam:{cls:'scam',label:'Scam Risk'},
+    pending:{cls:'caution',label:'Pending'}
+  };
+  const b = map[status] || map.pending;
+  return `<span class="badge ${b.cls}"><span class="bdot"></span>${b.label}</span>`;
+}
+
+function joinGroup(id){
+  const g = getGroups().find(x=>x.id===id);
+  if(!g || !g.inviteLink){ alert('This group has no invite link yet.'); return; }
+  window.open(g.inviteLink, '_blank', 'noopener');
+}
+
+function cardHTML(g){
+  const rating = Number(g.rating)||0;
+  const reviews = Number(g.reviews)||0;
+  const hasLink = !!g.inviteLink;
+  const platform = detectPlatform(g.inviteLink);
+  // Re-use catEmo logic from Admin if emo is missing
+  let emo = g.emo;
+  if(!emo){
+      const c = getCategories().find(c=>c.name===g.cat);
+      emo = c ? c.emo : '🏷';
+  }
+
+  return `
+  <div class="card" data-id="${g.id}">
+    <div class="scan"></div>
+    <div class="card-top">
+      <div class="avatar">${emo}</div>
+      <div>
+        <div class="card-title">${g.name}</div>
+        <div class="card-cat">${g.cat} · ${g.city ? g.city+', ' : ''}${g.country}</div>
+      </div>
+      ${badgeHTML(g.status)}
+    </div>
+    <div class="card-desc">${g.desc || ''}</div>
+    <div class="card-meta">
+      ${ratingChip(rating, reviews)}
+      <div class="members">${formatMembers(g.membersNum)} members</div>
+    </div>
+    <button class="join-btn" ${hasLink?'':'disabled'} onclick="joinGroup(${g.id})">${hasLink ? platform.icon+' '+platform.label+' →' : 'Link not available'}</button>
+  </div>`;
+}
+
+function renderGrid(elId, groups, emptyMsg){
+  document.getElementById(elId).innerHTML = groups.length ? groups.map(cardHTML).join('') : emptyGridHTML(emptyMsg || 'No groups here yet — check back soon.');
+  observeCards();
+}
+
+function updateHeroStats() {
+    const groups = getGroups().filter(g=>g.status!=='pending' && g.status!=='rejected');
+    const totalGroups = groups.length;
+    let verifiedCount = 0;
+    let scamCount = 0;
+    let totalRating = 0;
+    let groupsWithRating = 0;
+
+    const allGroups = getGroups();
+    allGroups.forEach(g => {
+        if(g.status === 'verified') verifiedCount++;
+        if(g.status === 'scam') scamCount++;
+    });
+
+    groups.forEach(g => {
+        if(g.rating && g.rating > 0) {
+            totalRating += Number(g.rating);
+            groupsWithRating++;
+        }
+    });
+
+    const verifiedPercentage = totalGroups > 0 ? Math.round((verifiedCount / totalGroups) * 100) : 0;
+    const avgRating = groupsWithRating > 0 ? (totalRating / groupsWithRating).toFixed(1) : "0.0";
+
+    document.getElementById('heroVerifiedCount').innerHTML = `🛡️ ${verifiedCount}`;
+    document.getElementById('statGroupsListed').innerHTML = formatMembers(totalGroups);
+    document.getElementById('statVerifiedSafe').innerHTML = `${verifiedPercentage}%`;
+    document.getElementById('statScamsBlocked').innerHTML = scamCount;
+    document.getElementById('statAvgRating').innerHTML = `${avgRating}★`;
+}
+
+function renderHome(){
+  updateHeroStats();
+  
+  // Populate Category Filter dropdown dynamically
+  const catFilter = document.getElementById('catFilter');
+  const cats = getCategories();
+  catFilter.innerHTML = `<option value="">All Categories</option>` + cats.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+
+  // Only approved groups (status !== 'pending') are ever shown publicly — pending ones wait for admin review
+  const groups = getGroups().filter(g=>g.status!=='pending' && g.status!=='rejected');
+  
+  // These 4 sections show ONLY what Admin pinned in Home Curation, in that exact order.
+  // Approving/adding a group does NOT make it appear here by itself — it has to be pinned.
+  renderGrid('trendingGrid', curatedOnly(groups,'trending').slice(0,4), 'Nothing pinned yet — add groups to Trending in Admin → Home Curation.');
+  
+  // Verified grid shows latest verified groups (not strictly curated by drag/drop, but chronologically)
+  renderGrid('verifiedGrid', groups.filter(g=>g.status==='verified').sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,4), 'No verified groups yet — be the first to submit one!');
+  
+  renderGrid('topRatedGrid', curatedOnly(groups,'topRated').slice(0,4), 'Nothing pinned yet — add groups to Top Rated in Admin → Home Curation.');
+  renderGrid('newGrid', curatedOnly(groups,'newest').slice(0,4), 'Nothing pinned yet — add groups to Newest in Admin → Home Curation.');
+  renderGrid('mostMembersGrid', curatedOnly(groups,'mostMembers').slice(0,4), 'Nothing pinned yet — add groups to Most Members in Admin → Home Curation.');
+}
+
+function renderCategories(){
+  const wrap = document.getElementById('catGrid');
+  const DYNAMIC_CATEGORIES = getCategories();
+  wrap.innerHTML = DYNAMIC_CATEGORIES.map(c=>`<div class="cat-chip" onclick="quickFilter('${c.name}')"><span class="emo">${c.emo}</span><span class="name">${c.name}</span></div>`).join('');
+  observeCards();
+}
+
+function renderAds(){
+  document.getElementById('adStrip').innerHTML = AD_SEED.map(a=>`
+    <div class="ad-card"><span class="ad-tag">${a.tag}</span><h3>${a.title}</h3><p>${a.desc}</p></div>
+  `).join('');
+}
+
+function renderTicker(){
+  // Build ticker from REAL scam/caution-flagged groups (admin-reviewed) + reports, falling back to safety tips when none exist yet
+  const groups = getGroups();
+  const flagged = groups.filter(g=>g.status==='scam' || g.status==='caution')
+    .map(g=> g.status==='scam' ? `<b>${g.name}</b> confirmed scam — reported by our admin team` : `<b>${g.name}</b> flagged for caution — under review`);
+  const reports = getReports().slice(-5).map(r=> `New scam report received for <b>${r.groupName||'a group'}</b>`);
+  const messages = [...flagged, ...reports].length ? [...flagged, ...reports] : SCAM_ALERTS_FALLBACK;
+  const items = messages.map(t=>`<span>⚠ ${t}</span>`).join('');
+  document.getElementById('tickerTrack').innerHTML = items + items; // duplicate for seamless loop
+}
+
+/* ================= SEARCH ================= */
+function runSearch(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const cat = document.getElementById('catFilter').value;
+  const groups = getGroups().filter(g=>{
+    if(g.status==='pending' || g.status==='rejected') return false; // not yet admin-approved, hidden from public
+    const matchesQ = !q
+      || g.name.toLowerCase().includes(q)
+      || (g.desc||'').toLowerCase().includes(q)
+      || g.cat.toLowerCase().includes(q)
+      || (g.country && g.country.toLowerCase().includes(q))
+      || (g.city && g.city.toLowerCase().includes(q));
+    const matchesCat = !cat || g.cat === cat;
+    return matchesQ && matchesCat;
+  });
+  const section = document.getElementById('results');
+  section.style.display = 'block';
+  document.getElementById('resultsHeading').textContent = `${groups.length} result${groups.length!==1?'s':''} ${q ? 'for "'+q+'"' : ''}`;
+  renderGrid('resultsGrid', groups);
+  section.scrollIntoView({behavior:'smooth'});
+}
+function quickFilter(catName){
+  // Redirect to categories page with filter if we are on index
+  window.location.href = `categories.html?category=${encodeURIComponent(catName)}`;
+}
+document.getElementById('searchInput').addEventListener('keydown', e=>{ if(e.key==='Enter') runSearch(); });
+
+/* ================= SCROLL REVEAL ================= */
+function observeCards(){
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:.15});
+  document.querySelectorAll('.card:not(.in), .cat-chip:not(.in)').forEach(el=>io.observe(el));
+}
+
+/* ================= NAVBAR RESPONSIVE LOGIC ================= */
+const menuToggle = document.getElementById('menuToggle');
+const navMenu = document.getElementById('navMenu');
+const hamburgerIcon = menuToggle.querySelector('.hamburger');
+const closeIcon = menuToggle.querySelector('.close-icon');
+
+function toggleMenu() {
+  const isActive = navMenu.classList.toggle('active');
+  if (isActive) {
+    hamburgerIcon.style.display = 'none';
+    closeIcon.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  } else {
+    hamburgerIcon.style.display = 'block';
+    closeIcon.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+}
+
+menuToggle.addEventListener('click', toggleMenu);
+
+navMenu.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    if (navMenu.classList.contains('active')) {
+      toggleMenu();
+    }
+  });
+});
+
+/* ================= INIT ================= */
+renderHome();
+renderCategories();
+renderAds();
+renderTicker();
+</script>
+</body>
+</html>

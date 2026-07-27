@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — GroupScan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F1A; --surface:#131A2B; --surface-2:#1B2438; --border:#262F47;
+    --text:#EDF1FA; --text-muted:#8D96B3;
+    --verified:#22D3A6; --verified-dim:rgba(34,211,166,.12);
+    --caution:#FFB238; --danger:#FF4D5E; --danger-dim:rgba(255,77,94,.12);
+    --violet:#7C6CFF; --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  h1,h2,.brand{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+
+  .wrap{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;}
+
+  /* ---------- Left brand panel ---------- */
+  .panel{
+    position:relative;padding:50px 5vw;display:flex;flex-direction:column;justify-content:space-between;
+    background:radial-gradient(circle at 30% 20%, rgba(124,108,255,.22), transparent 45%),
+      radial-gradient(circle at 80% 80%, rgba(34,211,166,.18), transparent 45%), #0E1424;
+    border-right:1px solid var(--border);overflow:hidden;
+  }
+  .brand{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:8px;position:relative;z-index:2;}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--verified);box-shadow:0 0 12px var(--verified);}
+  .panel-copy{position:relative;z-index:2;max-width:400px;}
+  .panel-copy h1{font-size:2.1rem;line-height:1.15;letter-spacing:-.02em;margin-bottom:14px;}
+  .panel-copy p{color:var(--text-muted);font-size:.95rem;}
+  .radar{position:absolute;right:-80px;bottom:-80px;width:420px;height:420px;z-index:1;}
+  .radar-ring{position:absolute;border:1px solid rgba(34,211,166,.25);border-radius:50%;inset:0;}
+  .radar-ring.r2{inset:60px;}
+  .radar-ring.r3{inset:120px;}
+  .radar-sweep{
+    position:absolute;inset:0;border-radius:50%;
+    background:conic-gradient(from 0deg, rgba(34,211,166,.5), transparent 40%);
+    animation:spin 4s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .panel-foot{position:relative;z-index:2;display:flex;gap:26px;color:var(--text-muted);font-size:.8rem;}
+  .panel-foot b{color:var(--verified);font-family:'JetBrains Mono';display:block;font-size:1rem;}
+
+  /* ---------- Right form panel ---------- */
+  .formside{display:flex;align-items:center;justify-content:center;padding:40px 6vw;}
+  .card{width:100%;max-width:420px;}
+  .card h2{font-size:1.6rem;letter-spacing:-.02em;margin-bottom:6px;}
+  .card .sub{color:var(--text-muted);font-size:.88rem;margin-bottom:30px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:.78rem;color:var(--text-muted);margin-bottom:7px;}
+  .field input{
+    width:100%;background:var(--surface);border:1px solid var(--border);border-radius:11px;
+    padding:12px 14px;color:var(--text);font-size:.92rem;outline:none;transition:.2s;font-family:'Inter';
+  }
+  .field input:focus{border-color:var(--verified);box-shadow:0 0 0 3px var(--verified-dim);}
+  .field .hint{font-size:.72rem;color:#5B6584;margin-top:5px;}
+  .field .err{font-size:.72rem;color:var(--danger);margin-top:5px;display:none;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .pw-wrap{position:relative;}
+  .pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:.8rem;color:var(--text-muted);}
+  .strength{height:4px;border-radius:4px;background:var(--surface-2);margin-top:8px;overflow:hidden;}
+  .strength-bar{height:100%;width:0%;background:var(--danger);transition:.3s;}
+  .terms{display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--text-muted);margin:18px 0 22px;}
+  .terms input{margin-top:3px;}
+  .btn-primary{
+    width:100%;padding:13px;border-radius:11px;background:var(--verified);color:#04150F;border:none;
+    font-weight:700;font-size:.95rem;cursor:pointer;transition:.2s;
+  }
+  .btn-primary:hover{box-shadow:0 0 24px rgba(34,211,166,.4);transform:translateY(-1px);}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+  .switch-line{text-align:center;margin-top:22px;font-size:.86rem;color:var(--text-muted);}
+  .switch-line a{color:var(--verified);font-weight:600;}
+
+  /* ---------- OTP step ---------- */
+  .otp-boxes{display:flex;gap:10px;justify-content:space-between;margin:26px 0 8px;}
+  .otp-boxes input{
+    width:52px;height:58px;text-align:center;font-size:1.4rem;font-family:'JetBrains Mono';
+    background:var(--surface);border:1px solid var(--border);border-radius:11px;color:var(--text);outline:none;
+  }
+  .otp-boxes input:focus{border-color:var(--verified);box-shadow:0 0 0 3px var(--verified-dim);}
+  .otp-meta{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--text-muted);margin-bottom:24px;}
+  .resend{color:var(--violet);cursor:pointer;font-weight:600;}
+  .resend.disabled{color:var(--text-muted);cursor:default;}
+  .demo-toast{
+    display:flex;align-items:center;gap:10px;background:var(--verified-dim);border:1px solid rgba(34,211,166,.35);
+    border-radius:11px;padding:12px 14px;margin-bottom:22px;font-size:.82rem;color:var(--verified);
+  }
+  .demo-toast .mono{color:var(--text);font-weight:700;letter-spacing:.1em;}
+
+  .step{display:none;}
+  .step.active{display:block;animation:fadeUp .4s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- Success ---------- */
+  .success-wrap{text-align:center;padding:20px 0;}
+  .check-circle{
+    width:76px;height:76px;border-radius:50%;background:var(--verified-dim);border:2px solid var(--verified);
+    display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 20px;color:var(--verified);
+    animation:pop .5s ease;
+  }
+  @keyframes pop{0%{transform:scale(0);}70%{transform:scale(1.1);}100%{transform:scale(1);}}
+  .progress{height:4px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-top:22px;}
+  .progress-bar{height:100%;background:var(--verified);width:0%;animation:fillBar 1.6s linear forwards;}
+  @keyframes fillBar{to{width:100%;}}
+
+  @media(max-width:860px){
+    .wrap{grid-template-columns:1fr;}
+    .panel{min-height:220px;}
+    .radar{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="panel">
+    <a href="index.html" class="brand"><span class="dot"></span>GroupScan</a>
+    <div class="panel-copy">
+      <h1>Join a directory built on trust.</h1>
+      <p>Create an account to submit groups, leave reviews, report scams, and track your reputation score across the community.</p>
+    </div>
+    <div class="radar">
+      <div class="radar-ring"></div><div class="radar-ring r2"></div><div class="radar-ring r3"></div>
+      <div class="radar-sweep"></div>
+    </div>
+    <div class="panel-foot">
+      <div><b>18.2K</b>Groups</div>
+      <div><b>92%</b>Verified</div>
+      <div><b>640+</b>Scams blocked</div>
+    </div>
+  </div>
+
+  <div class="formside">
+    <div class="card">
+
+      <!-- STEP 1: Register form -->
+      <div class="step active" id="step1">
+        <h2>Create your account</h2>
+        <div class="sub">Free forever. Takes less than a minute.</div>
+
+        <div class="field">
+          <label>Full name</label>
+          <input type="text" id="regName" placeholder="e.g. Anandh S">
+          <div class="err" id="errName">Please enter your full name</div>
+        </div>
+
+        <div class="field">
+          <label>Email address</label>
+          <input type="email" id="regEmail" placeholder="you@example.com">
+          <div class="err" id="errEmail">Please enter a valid email</div>
+        </div>
+
+        <div class="field">
+          <label>Mobile number</label>
+          <input type="tel" id="regMobile" placeholder="10-digit mobile number">
+          <div class="err" id="errMobile">Please enter a valid 10-digit number</div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="regPass" placeholder="••••••••" oninput="checkStrength()">
+              <span class="pw-toggle" onclick="togglePw('regPass',this)">Show</span>
+            </div>
+            <div class="strength"><div class="strength-bar" id="strengthBar"></div></div>
+          </div>
+          <div class="field">
+            <label>Confirm password</label>
+            <div class="pw-wrap">
+              <input type="password" id="regPass2" placeholder="••••••••">
+              <span class="pw-toggle" onclick="togglePw('regPass2',this)">Show</span>
+            </div>
+            <div class="err" id="errPass">Passwords don't match (min 6 chars)</div>
+          </div>
+        </div>
+
+        <label class="terms">
+          <input type="checkbox" id="regTerms">
+          <span>I agree to the Community Guidelines and understand groups are user-submitted and rated by the community.</span>
+        </label>
+
+        <button class="btn-primary" onclick="sendOtp()">Send OTP & Continue</button>
+        <div class="switch-line">Already have an account? <a href="login.html">Log in</a></div>
+      </div>
+
+      <!-- STEP 2: OTP verification -->
+      <div class="step" id="step2">
+        <h2>Verify your email</h2>
+        <div class="sub" id="otpSubText">Enter the 6-digit code sent to your email</div>
+
+        <div class="demo-toast">
+          🔔 <span>Demo Mode — no real email is sent. Your OTP is:</span>
+          <span class="mono" id="demoOtpDisplay">------</span>
+        </div>
+
+        <div class="otp-boxes" id="otpBoxes">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+          <input maxlength="1" inputmode="numeric">
+        </div>
+        <div class="err" id="errOtp" style="margin-bottom:14px;">Incorrect OTP, please try again</div>
+
+        <div class="otp-meta">
+          <span id="countdownText">Resend available in <b class="mono">00:30</b></span>
+          <span class="resend disabled" id="resendBtn" onclick="resendOtp()">Resend OTP</span>
+        </div>
+
+        <button class="btn-primary" onclick="verifyOtp()">Verify & Create Account</button>
+        <div class="switch-line"><a href="#" onclick="backToStep1();return false;">← Edit details</a></div>
+      </div>
+
+      <!-- STEP 3: Success -->
+      <div class="step" id="step3">
+        <div class="success-wrap">
+          <div class="check-circle">✓</div>
+          <h2>Account verified!</h2>
+          <div class="sub">Welcome to GroupScan, <span id="successName" style="color:var(--text);"></span> 🎉</div>
+          <div class="progress"><div class="progress-bar"></div></div>
+          <div class="sub" style="margin-top:10px;">Redirecting to your profile...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= USER STORE (wcd_users) ================= */
+function getUsers(){ return JSON.parse(localStorage.getItem('wcd_users') || '[]'); }
+function saveUsers(u){ localStorage.setItem('wcd_users', JSON.stringify(u)); }
+
+let pendingUser = null;
+let generatedOtp = '';
+let countdownTimer = null;
+
+function showErr(id, show){ document.getElementById(id).style.display = show ? 'block' : 'none'; }
+function togglePw(id, el){
+  const inp = document.getElementById(id);
+  const isPw = inp.type === 'password';
+  inp.type = isPw ? 'text' : 'password';
+  el.textContent = isPw ? 'Hide' : 'Show';
+}
+function checkStrength(){
+  const val = document.getElementById('regPass').value;
+  let score = 0;
+  if(val.length>=6) score+=34;
+  if(/[A-Z]/.test(val) && /[0-9]/.test(val)) score+=33;
+  if(/[^A-Za-z0-9]/.test(val)) score+=33;
+  const bar = document.getElementById('strengthBar');
+  bar.style.width = score+'%';
+  bar.style.background = score<40 ? 'var(--danger)' : score<75 ? 'var(--caution)' : 'var(--verified)';
+}
+
+function validateEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+function sendOtp(){
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const mobile = document.getElementById('regMobile').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+  const terms = document.getElementById('regTerms').checked;
+
+  let ok = true;
+  showErr('errName', !name); if(!name) ok=false;
+  showErr('errEmail', !validateEmail(email)); if(!validateEmail(email)) ok=false;
+  showErr('errMobile', !/^\d{10}$/.test(mobile)); if(!/^\d{10}$/.test(mobile)) ok=false;
+  showErr('errPass', pass.length<6 || pass!==pass2); if(pass.length<6 || pass!==pass2) ok=false;
+  if(!terms){ alert('Please accept the Community Guidelines to continue.'); ok=false; }
+
+  if(getUsers().some(u=>u.email.toLowerCase()===email.toLowerCase())){
+    showErr('errEmail', true);
+    document.getElementById('errEmail').textContent = 'An account with this email already exists';
+    ok=false;
+  }
+  if(!ok) return;
+
+  pendingUser = { name, email, mobile, pass };
+  generatedOtp = String(Math.floor(100000 + Math.random()*900000));
+  document.getElementById('demoOtpDisplay').textContent = generatedOtp;
+  document.getElementById('otpSubText').textContent = `Enter the 6-digit code sent to ${email}`;
+
+  goToStep(2);
+  startCountdown();
+  document.querySelectorAll('#otpBoxes input').forEach(i=>i.value='');
+  document.querySelector('#otpBoxes input').focus();
+}
+
+function resendOtp(){
+  if(!document.getElementById('resendBtn').classList.contains('disabled')) return;
+}
+function realResend(){
+  generatedOtp = String(Math.floor(100000 + Math.random()*900000));
+  document.getElementById('demoOtpDisplay').textContent = generatedOtp;
+  startCountdown();
+}
+
+function startCountdown(){
+  let t = 30;
+  const resendBtn = document.getElementById('resendBtn');
+  resendBtn.classList.add('disabled');
+  resendBtn.onclick = null;
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(()=>{
+    t--;
+    const mm = String(Math.floor(t/60)).padStart(2,'0');
+    const ss = String(t%60).padStart(2,'0');
+    document.getElementById('countdownText').innerHTML = `Resend available in <b class="mono">${mm}:${ss}</b>`;
+    if(t<=0){
+      clearInterval(countdownTimer);
+      document.getElementById('countdownText').textContent = "Didn't get it?";
+      resendBtn.classList.remove('disabled');
+      resendBtn.onclick = realResend;
+    }
+  },1000);
+}
+
+/* OTP box auto-advance */
+document.querySelectorAll('#otpBoxes input').forEach((box,idx,arr)=>{
+  box.addEventListener('input', ()=>{
+    box.value = box.value.replace(/[^0-9]/g,'');
+    if(box.value && idx<arr.length-1) arr[idx+1].focus();
+  });
+  box.addEventListener('keydown', (e)=>{
+    if(e.key==='Backspace' && !box.value && idx>0) arr[idx-1].focus();
+  });
+});
+
+function verifyOtp(){
+  const entered = [...document.querySelectorAll('#otpBoxes input')].map(i=>i.value).join('');
+  if(entered.length<6 || entered !== generatedOtp){
+    showErr('errOtp', true);
+    return;
+  }
+  showErr('errOtp', false);
+
+  const users = getUsers();
+  const newUser = { id: Date.now(), ...pendingUser, verified:true, joined: new Date().toISOString().slice(0,10),
+    role:'user', reputation: 50, groupsShared:0, followers:0, following:0, reviews:0 };
+  users.push(newUser);
+  saveUsers(users);
+  localStorage.setItem('wcd_session', JSON.stringify({ email:newUser.email, role:'user' }));
+
+  document.getElementById('successName').textContent = newUser.name;
+  goToStep(3);
+  setTimeout(()=>{ window.location.href = 'profile.html'; }, 1700);
+}
+
+function goToStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+}
+function backToStep1(){ clearInterval(countdownTimer); goToStep(1); }
+</script>
+</body>
+</html>
